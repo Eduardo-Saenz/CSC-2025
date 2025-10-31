@@ -26,6 +26,12 @@ struct HomeTabView: View {
             .tabItem {
                 Label("Explore", systemImage: "safari")
             }
+            NavigationStack {
+                CameraView()
+            
+            }.tabItem {
+                Label("Camera", systemImage: "camera")
+            }
         }
     }
 }
