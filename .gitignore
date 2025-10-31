@@ -1,0 +1,50 @@
+...existing code...
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/README.md
+fastlane/latest_snapshot.*
+
+# Build products
+*.app
+*.app.dSYM
+*.ipa
+*.dSYM
+*.framework
+*.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Playgrounds
+timeline.xctimeline
+playground.xcodeproj
+
+# Misc
+*.hmap
+*.xccheckout
+*.orig
+*.mobileprovision
+.idea/
+.vscode/
