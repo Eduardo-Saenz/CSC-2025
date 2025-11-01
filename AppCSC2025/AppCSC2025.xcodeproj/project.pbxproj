@@ -29,9 +29,22 @@
 		088C3C812EB2F95100A38B0E /* AppCSC2025UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppCSC2025UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2766A3A92EB5A12A00CE0ABB /* Exceptions for "AppCSC2025" folder in "AppCSC2025" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 088C3C662EB2F95000A38B0E /* AppCSC2025 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		088C3C692EB2F95000A38B0E /* AppCSC2025 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2766A3A92EB5A12A00CE0ABB /* Exceptions for "AppCSC2025" folder in "AppCSC2025" target */,
+			);
 			path = AppCSC2025;
 			sourceTree = "<group>";
 		};
@@ -381,9 +394,10 @@
 				DEVELOPMENT_TEAM = 9BY9RQP8PP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = AppCSC2025/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to the camera to translate text in real time.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone for voice input and recognition.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to your photos to select images and translate text from them.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to detect and translate spoken languages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -416,9 +430,10 @@
 				DEVELOPMENT_TEAM = 9BY9RQP8PP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = AppCSC2025/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to the camera to translate text in real time.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone for voice input and recognition.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to your photos to select images and translate text from them.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "This app uses speech recognition to detect and translate spoken languages.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
