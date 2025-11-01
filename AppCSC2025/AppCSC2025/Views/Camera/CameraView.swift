@@ -3,58 +3,111 @@
 //  AppCSC2025
 //
 //  Created by Samuel Martinez on 10/31/25.
+//  Actualizado: cámara + carga de fotos + feedback háptico + UI Apple.
 //
 
 import SwiftUI
 import AVFoundation
+import PhotosUI
 
 struct CameraView: View {
     @StateObject private var vm = CameraTranslationService()
+    @State private var selectedPhoto: PhotosPickerItem? = nil
+    @State private var selectedImage: UIImage? = nil
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            CameraPreview(sessionOwner: vm)
-                .ignoresSafeArea()
+            // Vista principal: cámara o imagen seleccionada
+            if let image = selectedImage {
+                Image(uiImage: image)
+                    .resizable()
+                        .scaledToFit() // ✅ Muestra toda la imagen completa sin recortarla
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black)
+                        .ignoresSafeArea()
+            } else {
+                CameraPreview(sessionOwner: vm)
+                    .ignoresSafeArea()
+            }
 
-            VStack(spacing: 10) {
-                // Idioma destino + slider confianza
+            VStack(spacing: 16) {
+                // Idioma destino + botón de galería
                 HStack {
-                    Picker("Destino", selection: $vm.targetLanguage) {
+                    Picker("Destination", selection: $vm.targetLanguage) {
                         ForEach(RecognizedLanguage.allCases, id: \.self) {
                             Text($0.flaggedLabel).tag($0)
                         }
                     }
                     .pickerStyle(.menu)
+                    .tint(.white)
+                    .padding(.horizontal)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .shadow(radius: 3)
 
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Text(String(format: "Confianza: %.0f%%", vm.avgConfidence * 100))
-                            .font(.caption)
-                            .monospacedDigit()
-                        Slider(value: Binding(
-                            get: { Double(vm.ocrConfidenceThreshold) },
-                            set: { vm.ocrConfidenceThreshold = Float($0) }
-                        ), in: 0.3...0.9)
+                    Spacer()
+
+                    // Botón para elegir foto
+                    PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
+                        Image(systemName: "photo.on.rectangle")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(.ultraThinMaterial, in: Circle())
+                            .shadow(radius: 3)
                     }
-                    .frame(width: 180)
                 }
+                .padding(.top, 30)
                 .padding(.horizontal)
 
-                Text(vm.overlayText)
-                    .font(.title3)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
+                // Texto traducido
+                if !vm.overlayText.isEmpty {
+                    Text(vm.overlayText)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
+                        .shadow(radius: 12)
+                        .transition(.opacity.combined(with: .scale))
+                        .animation(.easeInOut, value: vm.overlayText)
+                        .padding(.horizontal, 16)
+                }
 
+                // Botón principal
                 Button {
-                    vm.isRunning ? vm.stop() : vm.start()
+                    if selectedImage != nil {
+                        selectedImage = nil
+                        vm.overlayText = ""
+                    } else {
+                        vm.isRunning ? vm.stop() : vm.start()
+                    }
                 } label: {
-                    Label(vm.isRunning ? "Detener" : "OCR en vivo",
-                          systemImage: vm.isRunning ? "stop.fill" : "text.viewfinder")
+                    Label(
+                        selectedImage != nil ? "Close Image" :
+                        (vm.isRunning ? "Stop" : "Live Translate"),
+                        systemImage: selectedImage != nil ? "xmark.circle.fill" :
+                            (vm.isRunning ? "stop.circle.fill" : "text.viewfinder")
+                    )
+                    .font(.headline)
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 12)
                 }
                 .buttonStyle(.borderedProminent)
-                .padding(.bottom, 18)
+                .tint(selectedImage != nil ? .orange : (vm.isRunning ? .red : .blue))
+                .shadow(radius: 6)
+                .padding(.bottom, 22)
+            }
+        }
+        .onChange(of: selectedPhoto) { newItem in
+            Task {
+                guard let item = newItem else { return }
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    selectedImage = uiImage
+                    await vm.processImage(uiImage)
+                }
             }
         }
         .task { await vm.prepare() }
