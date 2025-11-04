@@ -31,7 +31,7 @@ struct HomeView: View {
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Good morning, (userName)")
+                Text("Good morning, \(vm.userName)")
                     .font(.largeTitle).bold()
                     .lineLimit(2)
                 Text(Date.now, format: .dateTime.weekday(.wide).day().month().year())
