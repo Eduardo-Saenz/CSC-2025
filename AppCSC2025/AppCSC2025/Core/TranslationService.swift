@@ -3,88 +3,75 @@
 //  AppCSC2025
 //
 //  Created by Samuel Martinez on 10/31/25.
-//  Actualizado para soportar más vocabulario y normalizar tokens.
-//  Corrección: se usa String.folding(options:locale:) en lugar de .diacriticInsensitive.
+//  Versión Deluxe: conectores y frases compuestas.
+//
 
 import Foundation
 
 final class TranslationService {
-    /// Traduce una cadena desde el idioma `from` al idioma `to`. Si el texto está vacío
-    /// o ambos idiomas son iguales, devuelve el texto tal cual.
     func translate(_ text: String, from: RecognizedLanguage, to: RecognizedLanguage) async -> String {
-        // Evitar traducir cadenas vacías o traducciones a sí mismo
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return "" }
         if from == to { return text }
-        return await translateStub(text, from: from, to: to)
+        return await translateEnhanced(text, from: from, to: to)
     }
 
-    /// Normaliza el texto: convierte a minúsculas, elimina signos de puntuación
-    /// al principio y final de cada token y quita los diacríticos (tildes).
     private func normalizeTokens(_ text: String) -> [String] {
         let rawTokens = text.lowercased().components(separatedBy: .whitespaces)
         let punctuation = CharacterSet.punctuationCharacters
         return rawTokens.map { token in
-            // Recorta signos de puntuación
             let trimmed = token.trimmingCharacters(in: punctuation)
-            // Elimina diacríticos (ej. á -> a)
-            let withoutDiacritics = trimmed.folding(options: .diacriticInsensitive, locale: .current)
-            return withoutDiacritics
+            return trimmed.folding(options: .diacriticInsensitive, locale: .current)
         }
     }
 
-    /// Traduce usando un diccionario de palabras estático. Se puede ampliar según necesidades.
-    private func translateStub(_ text: String, from: RecognizedLanguage, to: RecognizedLanguage) async -> String {
-        // Diccionario de traducción para palabras frecuentes en menús y frases comunes
+    private func translateEnhanced(_ text: String, from: RecognizedLanguage, to: RecognizedLanguage) async -> String {
+        // 🧠 Frases naturales y conectores comunes
         let glossary: [String: [RecognizedLanguage: String]] = [
-            // Saludos y frases básicas
-            "hola": [.en: "hello", .fr: "bonjour", .es: "hola"],
-            "gracias": [.en: "thank you", .fr: "merci", .es: "gracias"],
-            "mexico": [.en: "mexico", .fr: "mexique", .es: "méxico"],
-            "méxico": [.en: "mexico", .fr: "mexique", .es: "méxico"],
-            // Bebidas
-            "agua": [.en: "water", .fr: "eau", .es: "agua"],
-            "vino": [.en: "wine", .fr: "vin", .es: "vino"],
-            "cerveza": [.en: "beer", .fr: "bière", .es: "cerveza"],
-            "cafe": [.en: "coffee", .fr: "café", .es: "café"],
-            "caf\u{E9}": [.en: "coffee", .fr: "café", .es: "café"], // forma con acento para seguridad
-            "te": [.en: "tea", .fr: "thé", .es: "té"],
-            "té": [.en: "tea", .fr: "thé", .es: "té"],
-            // Platos principales
+            // Conectores
+            "y": [.en: "and", .fr: "et", .es: "y"],
+            "con": [.en: "with", .fr: "avec", .es: "con"],
+            "de": [.en: "of", .fr: "de", .es: "de"],
+            "en": [.en: "in", .fr: "dans", .es: "en"],
+            "para": [.en: "for", .fr: "pour", .es: "para"],
+            "al": [.en: "to the", .fr: "au", .es: "al"],
+
+            // Frases compuestas comunes
+            "pollo con arroz": [.en: "chicken with rice", .fr: "poulet avec riz", .es: "pollo con arroz"],
+            "carne con papas": [.en: "beef with potatoes", .fr: "boeuf avec pommes de terre", .es: "carne con papas"],
+            "tacos de pollo": [.en: "chicken tacos", .fr: "tacos au poulet", .es: "tacos de pollo"],
+            "ensalada de tomate": [.en: "tomato salad", .fr: "salade de tomates", .es: "ensalada de tomate"],
+            "sopa de verduras": [.en: "vegetable soup", .fr: "soupe de légumes", .es: "sopa de verduras"],
+            "agua natural": [.en: "natural water", .fr: "eau naturelle", .es: "agua natural"],
+            "pastel de chocolate": [.en: "chocolate cake", .fr: "gâteau au chocolat", .es: "pastel de chocolate"],
+            "hamburguesa con queso": [.en: "burger with cheese", .fr: "hamburger au fromage", .es: "hamburguesa con queso"],
+            "papas fritas": [.en: "french fries", .fr: "pommes de terre frites", .es: "papas fritas"],
+            "sándwich de jamón": [.en: "ham sandwich", .fr: "sandwich au jambon", .es: "sándwich de jamón"],
+            "helado de vainilla": [.en: "vanilla ice cream", .fr: "glace à la vanille", .es: "helado de vainilla"],
+
+            // Palabras básicas (por compatibilidad)
             "pollo": [.en: "chicken", .fr: "poulet", .es: "pollo"],
             "carne": [.en: "beef", .fr: "boeuf", .es: "carne"],
             "pescado": [.en: "fish", .fr: "poisson", .es: "pescado"],
-            "cerdo": [.en: "pork", .fr: "porc", .es: "cerdo"],
             "arroz": [.en: "rice", .fr: "riz", .es: "arroz"],
-            "frijoles": [.en: "beans", .fr: "haricots", .es: "frijoles"],
-            "ensalada": [.en: "salad", .fr: "salade", .es: "ensalada"],
             "sopa": [.en: "soup", .fr: "soupe", .es: "sopa"],
-            "pizza": [.en: "pizza", .fr: "pizza", .es: "pizza"],
-            "hamburguesa": [.en: "burger", .fr: "hamburger", .es: "hamburguesa"],
-            // Postres
-            "pastel": [.en: "cake", .fr: "gâteau", .es: "pastel"],
-            "tarta": [.en: "pie", .fr: "tarte", .es: "tarta"],
-            "helado": [.en: "ice cream", .fr: "glace", .es: "helado"],
-            "galleta": [.en: "cookie", .fr: "biscuit", .es: "galleta"],
-            "chocolate": [.en: "chocolate", .fr: "chocolat", .es: "chocolate"],
-            // Otros ingredientes y platos comunes
-            "queso": [.en: "cheese", .fr: "fromage", .es: "queso"],
-            "tomate": [.en: "tomato", .fr: "tomate", .es: "tomate"],
-            "cebolla": [.en: "onion", .fr: "oignon", .es: "cebolla"],
-            "lechuga": [.en: "lettuce", .fr: "laitue", .es: "lechuga"],
-            "papas": [.en: "potatoes", .fr: "pommes de terre", .es: "papas"],
-            "patatas": [.en: "potatoes", .fr: "pommes de terre", .es: "patatas"],
-            "huevo": [.en: "egg", .fr: "œuf", .es: "huevo"],
-            "huevos": [.en: "eggs", .fr: "œufs", .es: "huevos"],
-            "tostada": [.en: "toast", .fr: "toast", .es: "tostada"],
-            "sandwich": [.en: "sandwich", .fr: "sandwich", .es: "sándwich"],
-            "sándwich": [.en: "sandwich", .fr: "sandwich", .es: "sándwich"],
-            // Añade tantos términos como necesites…
+            "ensalada": [.en: "salad", .fr: "salade", .es: "ensalada"],
+            "café": [.en: "coffee", .fr: "café", .es: "café"],
+            "agua": [.en: "water", .fr: "eau", .es: "agua"]
         ]
 
-        // Normaliza el texto y traduce token por token
+        let lower = text.lowercased()
+        // 🧩 Buscar primero frases completas antes de traducir palabra por palabra
+        for phrase in glossary.keys.sorted(by: { $0.count > $1.count }) {
+            if lower.contains(phrase) {
+                let translated = glossary[phrase]?[to] ?? phrase
+                return lower.replacingOccurrences(of: phrase, with: translated)
+            }
+        }
+
+        // Traducción por palabra
         let tokens = normalizeTokens(text)
-        let translatedTokens = tokens.map { token in
-            glossary[token]?[to] ?? token
+        let translatedTokens = tokens.map { word in
+            glossary[word]?[to] ?? word
         }
         return translatedTokens.joined(separator: " ")
     }

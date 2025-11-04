@@ -8,11 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
-    var body: some View {
-        HomeTabView()
-    }
-}
+    @StateObject private var settings = AppSettings()
 
-#Preview {
-    ContentView()
+    var body: some View {
+        if settings.isConfigured {
+            HomeTabView()
+                .environmentObject(settings)
+                .environment(\.locale, Locale(identifier: localeCode))
+        } else {
+            LoginView()
+                .environmentObject(settings)
+        }
+    }
+
+    private var localeCode: String {
+        switch settings.selectedLanguage {
+        case "Español": return "es"
+        case "English": return "en"
+        case "Français": return "fr"
+        case "Deutsch": return "de"
+        case "Português": return "pt"
+        default: return "es"
+        }
+    }
 }

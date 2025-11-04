@@ -1,0 +1,6 @@
+
+[
+  { "date": "2026-06-11", "teams": ["México", "Italia"], "stadium": "Estadio Azteca, Ciudad de México", "group": "A" },
+  { "date": "2026-06-12", "teams": ["Canadá", "Brasil"], "stadium": "BMO Field, Toronto", "group": "B" }
+  // ... otros partidos ...
+]

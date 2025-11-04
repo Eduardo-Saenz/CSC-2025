@@ -1,0 +1,27 @@
+
+[
+  {
+    "city": "Ciudad de México",
+    "stadium": "Estadio Azteca",
+    "metro": "Línea 2 (Metro Tasqueña) + Tren Ligero Estadio Azteca",
+    "bus": "Rutas RTP y Trolebús desde Tasqueña",
+    "walk": "La estación del Tren Ligero está a 5 min caminando",
+    "tip": "Llega con tiempo; el Tren Ligero es la forma más directa de llegar:contentReference[oaicite:0]{index=0}"
+  },
+  {
+    "city": "Guadalajara",
+    "stadium": "Estadio Akron",
+    "metro": "Línea 3 (Periférico Norte)",
+    "bus": "Rutas A12, T02, TALA POR COLÓN, TVT – POR COLÓN, C109:contentReference[oaicite:1]{index=1}",
+    "walk": "15 min caminando desde la estación Periférico Norte",
+    "tip": "Sal temprano y considera taxi; tras el partido las calles se saturan:contentReference[oaicite:2]{index=2}"
+  },
+  {
+    "city": "Monterrey",
+    "stadium": "Estadio BBVA",
+    "metro": "Línea 1 (Estación Exposición)",
+    "bus": "Rutas locales con paradas en Las Torres y Pablo Livas:contentReference[oaicite:3]{index=3}",
+    "walk": "10 min caminando desde la estación Exposición",
+    "tip": "El metro es la forma más sencilla y rápida para llegar:contentReference[oaicite:4]{index=4}"
+  }
+]

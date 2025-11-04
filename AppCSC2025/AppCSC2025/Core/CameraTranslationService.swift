@@ -3,127 +3,116 @@
 //  AppCSC2025
 //
 //  Created by Samuel Martinez on 10/31/25.
-//  Optimizado: soporte cámara + fotos + límite de frames + feedback háptico.
+//  Gestiona la cámara, reconocimiento de texto y traducción on-device.
 //
 
-import Foundation
 import AVFoundation
 import Vision
-import UIKit
+import NaturalLanguage
+import SwiftUI
 
 @MainActor
 final class CameraTranslationService: NSObject, ObservableObject {
-    // MARK: - Public properties
+
+    // MARK: - Estados observables
     @Published var overlayText: String = ""
-    @Published var avgConfidence: Float = 0.0
+    @Published var isRunning: Bool = false
     @Published var targetLanguage: RecognizedLanguage = .en
-    @Published var isRunning = false
+    @Published var detectedLanguageLabel: RecognizedLanguage? = nil
 
-    // MARK: - OCR settings
-    var ocrConfidenceThreshold: Float = 0.5
+    // MARK: - Sesión de cámara
+    private let session = AVCaptureSession()
+    private let output = AVCaptureVideoDataOutput()
+    private let queue = DispatchQueue(label: "camera.translation.queue")
 
-    // MARK: - Camera session
-    let previewSession = AVCaptureSession()
-    private let sessionQueue = DispatchQueue(label: "CameraSessionQueue")
-    private let videoOutput = AVCaptureVideoDataOutput()
-    private var lastProcessTime = Date()
+    var previewSession: AVCaptureSession { session }
 
-    // MARK: - Internal helpers
-    private let processor = OCRProcessor()
-    private var videoConnection: AVCaptureConnection?
-
-    // MARK: - Setup
+    // MARK: - Inicialización
     func prepare() async {
-        sessionQueue.async {
-            self.configureCamera()
-        }
-    }
+        guard !session.isRunning else { return }
 
-    private func configureCamera() {
-        previewSession.beginConfiguration()
-        previewSession.sessionPreset = .high
+        session.beginConfiguration()
+        session.sessionPreset = .high
 
-        guard let device = AVCaptureDevice.default(for: .video),
-              let input = try? AVCaptureDeviceInput(device: device)
+        // Cámara trasera
+        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+              let input = try? AVCaptureDeviceInput(device: camera)
         else {
-            print("❌ Unable to access camera.")
+            print("⚠️ No se pudo acceder a la cámara.")
             return
         }
 
-        if previewSession.canAddInput(input) {
-            previewSession.addInput(input)
+        if session.canAddInput(input) { session.addInput(input) }
+        if session.canAddOutput(output) {
+            session.addOutput(output)
+            output.setSampleBufferDelegate(self, queue: queue)
         }
 
-        videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "VideoOutputQueue"))
-        videoOutput.alwaysDiscardsLateVideoFrames = true
-
-        if previewSession.canAddOutput(videoOutput) {
-            previewSession.addOutput(videoOutput)
-        }
-
-        videoConnection = videoOutput.connection(with: .video)
-        previewSession.commitConfiguration()
+        session.commitConfiguration()
     }
 
-    // MARK: - Control
+    // MARK: - Control de flujo
     func start() {
-        if !previewSession.isRunning {
-            previewSession.startRunning()
-            isRunning = true
-        }
+        guard !session.isRunning else { return }
+        isRunning = true
+        queue.async { self.session.startRunning() }
     }
 
     func stop() {
-        if previewSession.isRunning {
-            previewSession.stopRunning()
-            isRunning = false
-        }
+        guard session.isRunning else { return }
+        isRunning = false
+        queue.async { self.session.stopRunning() }
     }
 
-    // MARK: - Process static images
+    // MARK: - Procesamiento de imagen (desde galería)
     func processImage(_ image: UIImage) async {
         guard let cgImage = image.cgImage else { return }
+        await recognizeText(in: cgImage)
+    }
 
-        let (translated, confidence) = await processor.scanAndTranslateText(
-            pixelBuffer: nil,
-            target: targetLanguage,
-            fromStaticImage: cgImage
-        )
+    // MARK: - OCR + Traducción
+    private func recognizeText(in image: CGImage) async {
+        let request = VNRecognizeTextRequest { [weak self] req, _ in
+            guard let self = self else { return }
 
-        self.overlayText = translated
-        self.avgConfidence = confidence
+            let observations = req.results as? [VNRecognizedTextObservation] ?? []
+            let fullText = observations.compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ")
+
+            Task { @MainActor in
+                self.overlayText = fullText
+                self.detectedLanguageLabel = self.detectLanguage(for: fullText)
+            }
+        }
+
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+
+        let handler = VNImageRequestHandler(cgImage: image, options: [:])
+        try? handler.perform([request])
+    }
+
+    private func detectLanguage(for text: String) -> RecognizedLanguage? {
+        guard !text.isEmpty else { return nil }
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+
+        guard let lang = recognizer.dominantLanguage?.rawValue.prefix(2) else { return nil }
+        return RecognizedLanguage(rawValue: String(lang))
     }
 }
 
-// MARK: - Video Output Delegate
+// MARK: - Extensión: Captura de frames
 extension CameraTranslationService: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(
-        _ output: AVCaptureOutput,
-        didOutput sampleBuffer: CMSampleBuffer,
-        from connection: AVCaptureConnection
-    ) {
-        guard isRunning else { return }
+    func captureOutput(_ output: AVCaptureOutput,
+                       didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
+        guard isRunning,
+              let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
-        // ⚙️ Limita frecuencia de OCR
-        guard Date().timeIntervalSince(lastProcessTime) > 0.5 else { return }
-        lastProcessTime = Date()
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { return }
 
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-
-        Task {
-            let (translated, confidence) = await processor.scanAndTranslateText(
-                pixelBuffer: pixelBuffer,
-                target: targetLanguage,
-                fromStaticImage: nil
-            )
-
-            if translated != self.overlayText {
-                self.overlayText = translated
-                // 💥 Feedback háptico al cambiar texto
-                let generator = UINotificationFeedbackGenerator()
-                generator.notificationOccurred(.success)
-            }
-            self.avgConfidence = confidence
-        }
+        Task { await recognizeText(in: cgImage) }
     }
 }
