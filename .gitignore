@@ -1,0 +1,6 @@
+.Ds_Store
+xcuserdata/
+DerivedData/
+build/
+*.xccheckout
+*.xcscmblueprint
