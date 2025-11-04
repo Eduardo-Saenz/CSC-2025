@@ -3,7 +3,7 @@
 //  AppCSC2025
 //
 //  Created by Samuel Martinez on 10/31/25.
-//  Actualizado: cámara + carga de fotos + feedback háptico + UI Apple.
+//  Versión Deluxe: UI tipo Apple Translate con blur, idioma detectado y transiciones suaves.
 //
 
 import SwiftUI
@@ -16,22 +16,25 @@ struct CameraView: View {
     @State private var selectedImage: UIImage? = nil
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Vista principal: cámara o imagen seleccionada
-            if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                        .scaledToFit() // ✅ Muestra toda la imagen completa sin recortarla
+        ZStack {
+            // Fondo: cámara o imagen cargada
+            Group {
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.black)
                         .ignoresSafeArea()
-            } else {
-                CameraPreview(sessionOwner: vm)
-                    .ignoresSafeArea()
+                } else {
+                    CameraPreview(sessionOwner: vm)
+                        .ignoresSafeArea()
+                }
             }
 
-            VStack(spacing: 16) {
-                // Idioma destino + botón de galería
+            // Overlay principal
+            VStack {
+                // 🔤 Selector de idioma + botón de galería
                 HStack {
                     Picker("Destination", selection: $vm.targetLanguage) {
                         ForEach(RecognizedLanguage.allCases, id: \.self) {
@@ -40,15 +43,16 @@ struct CameraView: View {
                     }
                     .pickerStyle(.menu)
                     .tint(.white)
-                    .padding(.horizontal)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                     .background(.ultraThinMaterial, in: Capsule())
                     .shadow(radius: 3)
 
                     Spacer()
 
-                    // Botón para elegir foto
+                    // 📷 Botón galería
                     PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
-                        Image(systemName: "photo.on.rectangle")
+                        Image(systemName: "photo.fill.on.rectangle.fill")
                             .font(.title2)
                             .foregroundColor(.white)
                             .padding(10)
@@ -56,26 +60,43 @@ struct CameraView: View {
                             .shadow(radius: 3)
                     }
                 }
-                .padding(.top, 30)
-                .padding(.horizontal)
+                .padding(.top, 40)
+                .padding(.horizontal, 20)
 
-                // Texto traducido
+                Spacer()
+
+                // 🔎 Idioma detectado + traducción
                 if !vm.overlayText.isEmpty {
-                    Text(vm.overlayText)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 22))
-                        .shadow(radius: 12)
-                        .transition(.opacity.combined(with: .scale))
-                        .animation(.easeInOut, value: vm.overlayText)
-                        .padding(.horizontal, 16)
+                    VStack(spacing: 10) {
+                        if let detectedLang = vm.detectedLanguageLabel {
+                            Text("Detected: \(detectedLang.flaggedLabel)")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(6)
+                                .background(.ultraThinMaterial, in: Capsule())
+                                .shadow(radius: 2)
+                        }
+
+                        Text(vm.overlayText)
+                            .font(.title3)
+                            .fontWeight(.medium)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 12)
+                            .background(
+                                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
+                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                            )
+                            .shadow(radius: 10)
+                            .padding(.horizontal, 28)
+                            .transition(.opacity.combined(with: .scale))
+                            .animation(.easeInOut(duration: 0.3), value: vm.overlayText)
+                    }
+                    .padding(.bottom, 90)
                 }
 
-                // Botón principal
+                // 🔘 Botón principal
                 Button {
                     if selectedImage != nil {
                         selectedImage = nil
@@ -97,9 +118,10 @@ struct CameraView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(selectedImage != nil ? .orange : (vm.isRunning ? .red : .blue))
                 .shadow(radius: 6)
-                .padding(.bottom, 22)
+                .padding(.bottom, 30)
             }
         }
+        // Cuando se selecciona una imagen
         .onChange(of: selectedPhoto) { newItem in
             Task {
                 guard let item = newItem else { return }
@@ -112,6 +134,15 @@ struct CameraView: View {
         }
         .task { await vm.prepare() }
     }
+}
+
+// Efecto de blur nativo
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+    }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 }
 
 #if os(iOS)
