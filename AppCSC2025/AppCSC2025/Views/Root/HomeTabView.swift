@@ -29,6 +29,21 @@ struct HomeTabView: View {
             .tabItem {
                 Label("Mundial", systemImage: "sportscourt.fill")
             }
+            
+            // Cámara (conservada del proyecto original)
+            NavigationStack {
+                CameraView()
+            }
+            .tabItem {
+                Label("Camera", systemImage: "camera")
+            }
+            
+            NavigationStack {
+                ExploreView()
+            }
+            .tabItem {
+                Label("Explorar", systemImage: "world")
+            }
 
             // Traductor
             //NavigationStack {
@@ -37,14 +52,6 @@ struct HomeTabView: View {
             //.tabItem {
             //    Label("Traductor", systemImage: "mic.fill")
             //}
-
-            // Movilidad (opcional; también aparece en Mundial, pero aquí individual)
-            NavigationStack {
-                MobilityView()
-            }
-            .tabItem {
-                Label("Movilidad", systemImage: "map.fill")
-            }
 
             // Ajustes
             NavigationStack {
@@ -55,13 +62,7 @@ struct HomeTabView: View {
                 Label("Ajustes", systemImage: "gear")
             }
 
-            // Cámara (conservada del proyecto original)
-            NavigationStack {
-                CameraView()
-            }
-            .tabItem {
-                Label("Camera", systemImage: "camera")
-            }
+            
         }
     }
 }

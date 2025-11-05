@@ -30,6 +30,18 @@ struct SettingsView: View {
                         ForEach(languages, id: \.self) { Text($0).tag($0) }
                     }
                 }
+                
+                Section("Apariencia") {
+                    Picker("Modo", selection: Binding(
+                        get: { settings.themeMode },
+                        set: { settings.themeMode = $0 }
+                    )) {
+                        ForEach(ThemeMode.allCases) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
 
                 Section {
                     Button(role: .destructive) {

@@ -18,9 +18,9 @@ struct CameraView: View {
     var body: some View {
         ZStack {
             // Fondo: cámara o imagen cargada
-            Group {
+            SwiftUI.Group {
                 if let image = selectedImage {
-                    Image(uiImage: image)
+                    SwiftUI.Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
