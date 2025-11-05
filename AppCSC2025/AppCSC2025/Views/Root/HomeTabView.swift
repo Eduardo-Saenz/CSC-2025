@@ -42,7 +42,7 @@ struct HomeTabView: View {
                 ExploreView()
             }
             .tabItem {
-                Label("Explorar", systemImage: "world")
+                Label("Explorar", systemImage: "binoculars")
             }
 
             // Traductor
