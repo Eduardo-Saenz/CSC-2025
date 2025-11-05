@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(iOS 17.0, *)
 struct ContentView: View {
     // MARK: - Estado UI
     @State private var partial = ""
@@ -7,25 +8,32 @@ struct ContentView: View {
     @State private var detectedLang: String?
     @State private var translatedText: String?
     @State private var isRecording = false
-    @State private var mockMode = true
-    @State private var mockInput = ""
+    @State private var targetLang: String = "en" // "es", "en", "fr"
 
     // MARK: - Servicios
     private let speech = SpeechRecognizerService()
     private let nlp = LanguageDetectionService()
-    private let translator: TranslationService = TranslateKitAdapter() // 👈 cambia si tienes otro traductor
-    @State private var targetLang: String = "en"
+    private let translator: TranslationService = TranslateKitAdapter()
+    private let tts = TTSService()
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Demo: Voz → Texto → Idioma → Traducción")
-                .font(.title2).bold()
+            Text("Voz → Texto → Traducción → Voz")
+                .font(.title3).bold()
+
+            Picker("Idioma destino", selection: $targetLang) {
+                Text("🇪🇸 Español").tag("es")
+                Text("🇬🇧 Inglés").tag("en")
+                Text("🇫🇷 Francés").tag("fr")
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
 
             RoundedRectangle(cornerRadius: 12)
                 .fill(.gray.opacity(0.12))
                 .frame(height: 80)
                 .overlay(
-                    Text(partial.isEmpty ? "Habla o escribe para comenzar…" : partial)
+                    Text(partial.isEmpty ? "Habla para comenzar…" : partial)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
                 )
@@ -45,34 +53,8 @@ struct ContentView: View {
 
             List(finals, id: \.self) { Text($0) }
 
-            // MARK: - Mock mode (sin micrófono)
-            Toggle("Mock mode (sin micrófono)", isOn: $mockMode)
-
-            if mockMode {
-                TextField("Escribe una frase para simular ASR…", text: $mockInput)
-                    .textFieldStyle(.roundedBorder)
-                Button("Procesar mock") {
-                    let txt = mockInput.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard txt.isEmpty == false else { return }
-
-                    partial = ""
-                    finals.append(txt)
-
-                    if let src = nlp.detectLanguage(for: txt) {
-                        detectedLang = src
-                        Task {
-                            let translated = try? await translator.translate(txt, from: src, to: targetLang)
-                            await MainActor.run { translatedText = translated }
-                        }
-                    }
-                    mockInput = ""
-                }
-                .buttonStyle(.bordered)
-            }
-
-            // MARK: - Botón principal
+            // Iniciar/Detener reconocimiento
             Button(isRecording ? "Detener" : "Iniciar") {
-                if mockMode { return }
                 if isRecording {
                     speech.stop()
                     isRecording = false
@@ -81,20 +63,27 @@ struct ContentView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
+
+            // TTS
+            Button("🔊 Reproducir traducción") {
+                guard let txt = translatedText else { return }
+                let voice: String = (targetLang == "es") ? "es-MX" : (targetLang == "fr" ? "fr-FR" : "en-US")
+                tts.speak(txt, lang: voice)
+            }
+            .buttonStyle(.bordered)
+            .disabled(translatedText == nil)
         }
         .padding()
         .onDisappear { speech.stop() }
     }
 
-    // MARK: - Lógica ASR
+    // MARK: - Reconocimiento de voz
     private func startRecognition() {
         Task {
             do {
                 try await SpeechRecognizerService.ensurePermissions()
 
-                speech.onPartial = { txt in
-                    partial = txt
-                }
+                speech.onPartial = { txt in partial = txt }
 
                 speech.onFinal = { txt in
                     partial = ""
@@ -117,11 +106,13 @@ struct ContentView: View {
                     print("ASR error:", err.localizedDescription)
                 }
 
+                // Ajusta el locale a lo que vayas a hablar principalmente
                 try speech.start(locale: Locale(identifier: "es-MX"))
                 isRecording = true
             } catch {
-                print("Error al iniciar reconocimiento:", error.localizedDescription)
+                print("Error al iniciar SpeechRecognizer:", error.localizedDescription)
             }
         }
     }
 }
+//a

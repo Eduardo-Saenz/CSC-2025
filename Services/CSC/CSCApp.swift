@@ -1,4 +1,4 @@
-//
+
 //  CSCApp.swift
 //  CSC
 //
@@ -30,4 +30,3 @@ struct CSCApp: App {
         .modelContainer(sharedModelContainer)
     }
 }
-//a

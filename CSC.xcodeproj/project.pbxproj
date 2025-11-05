@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EE7267CD2EBA9263005389D1 /* SubtitleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7267CC2EBA9259005389D1 /* SubtitleService.swift */; };
+		EE7267CF2EBA92E3005389D1 /* TTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE7267CE2EBA92E3005389D1 /* TTSService.swift */; };
 		EEA99D052EB3E569009A4FE7 /* SpeechRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA99D042EB3E559009A4FE7 /* SpeechRecognizerService.swift */; };
 		EEA99D072EB3F151009A4FE7 /* LanguageDetectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA99D062EB3F120009A4FE7 /* LanguageDetectionService.swift */; };
 		EEA99D092EB3F3FF009A4FE7 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA99D082EB3F3F3009A4FE7 /* TranslationService.swift */; };
@@ -14,6 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EE7267CC2EBA9259005389D1 /* SubtitleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleService.swift; sourceTree = "<group>"; };
+		EE7267CE2EBA92E3005389D1 /* TTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSService.swift; sourceTree = "<group>"; };
 		EEA99CEE2EB3CF65009A4FE7 /* CSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA99D042EB3E559009A4FE7 /* SpeechRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizerService.swift; sourceTree = "<group>"; };
 		EEA99D062EB3F120009A4FE7 /* LanguageDetectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageDetectionService.swift; sourceTree = "<group>"; };
@@ -97,6 +101,7 @@
 		EEA99D022EB3E37F009A4FE7 /* Subtitles */ = {
 			isa = PBXGroup;
 			children = (
+				EE7267CC2EBA9259005389D1 /* SubtitleService.swift */,
 			);
 			path = Subtitles;
 			sourceTree = "<group>";
@@ -104,6 +109,7 @@
 		EEA99D032EB3E39E009A4FE7 /* TTS */ = {
 			isa = PBXGroup;
 			children = (
+				EE7267CE2EBA92E3005389D1 /* TTSService.swift */,
 			);
 			path = TTS;
 			sourceTree = "<group>";
@@ -184,8 +190,10 @@
 			files = (
 				EEA99D0B2EB3F41B009A4FE7 /* TranslateKitAdapter.swift in Sources */,
 				EEA99D072EB3F151009A4FE7 /* LanguageDetectionService.swift in Sources */,
+				EE7267CD2EBA9263005389D1 /* SubtitleService.swift in Sources */,
 				EEA99D052EB3E569009A4FE7 /* SpeechRecognizerService.swift in Sources */,
 				EEA99D092EB3F3FF009A4FE7 /* TranslationService.swift in Sources */,
+				EE7267CF2EBA92E3005389D1 /* TTSService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
