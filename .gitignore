@@ -39,3 +39,50 @@ Packages/
 Package.pins
 Package.resolved
 .swiftpm/
+
+# ========================================
+# Signing y provisioning
+# ========================================
+*.mobileprovision
+*.provisionprofile
+*.p12
+*.cer
+*.key
+*.pem
+*.pfx
+
+# ========================================
+# Logs y caches
+# ========================================
+*.log
+*.tmp
+*.cache
+*.swp
+*.lock
+
+# ========================================
+# Assets y previsualizaciones
+# ========================================
+Preview Content/
+*.xcassets/*.png
+*.xcassets/*.jpg
+*.xcassets/*.pdf
+*.xcassets/Assets.xcassets/
+
+# ========================================
+# SwiftUI Previews y estado del simulador
+# ========================================
+*.moved-aside
+*.xcuserstate
+*.xcuserdatad
+*.xcuserdata
+*.xcscheme
+
+# ========================================
+# Archivos de entorno y secretos
+# ========================================
+.env
+.env.local
+.env.*.local
+Secrets.swift
+Config.swift
