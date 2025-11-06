@@ -13,54 +13,17 @@ struct HomeTabView: View {
 
     var body: some View {
         TabView {
-            // Pestaña Home (original)
-            NavigationStack {
-                HomeView()
-                    .environmentObject(vm)
-            }
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
-            }
-
-            // Nueva pestaña Mundial 2026
-            NavigationStack {
-                WorldCupView()
-            }
-            .tabItem {
-                Label("Mundial", systemImage: "sportscourt.fill")
-            }
+            NavigationStack { HomeView().environmentObject(vm) }
+                .tabItem { Label("Home", systemImage: "house.fill") }
             
-            // Cámara (conservada del proyecto original)
-            NavigationStack {
-                CameraView()
-            }
-            .tabItem {
-                Label("Camera", systemImage: "camera")
-            }
+            NavigationStack { WorldCupView() }
+                .tabItem { Label("Mundial", systemImage: "sportscourt.fill") }
             
-            NavigationStack {
-                ExploreView()
-            }
-            .tabItem {
-                Label("Explorar", systemImage: "binoculars")
-            }
-
-            // Traductor
-            //NavigationStack {
-            // TranslatorView()
-            // }
-            //.tabItem {
-            //    Label("Traductor", systemImage: "mic.fill")
-            //}
-
-            // Ajustes
-            NavigationStack {
-                SettingsView()
-                    .environmentObject(settings)
-            }
-            .tabItem {
-                Label("Ajustes", systemImage: "gear")
-            }
+            NavigationStack { CameraView() }
+                .tabItem { Label("Camera", systemImage: "camera") }
+            
+            NavigationStack{ ConversationView() }
+                .tabItem{ Label("Interprete", systemImage: "mic.fill")}
 
             
         }

@@ -9,9 +9,9 @@ import SwiftUI
 
 struct WorldCupView: View {
     @StateObject private var manager = WorldCupManager()
-
     @State private var selection: WorldCupPage = .matches
     @Namespace private var underlineNS
+    @EnvironmentObject var settings: AppSettings
 
     var body: some View {
         VStack(spacing: 0) {
@@ -20,10 +20,8 @@ struct WorldCupView: View {
             TabView(selection: $selection) {
                 MatchesListView(manager: manager)
                     .tag(WorldCupPage.matches)
-
                 GroupListView(manager: manager)
                     .tag(WorldCupPage.groups)
-
                 MobilityListView(manager: manager)
                     .tag(WorldCupPage.mobility)
             }
@@ -32,6 +30,12 @@ struct WorldCupView: View {
         }
         .navigationTitle("World Cup 2026")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                TopBarSettingsButton()
+            }
+        }
         .background(Color(.systemGroupedBackground))
     }
 }
+
