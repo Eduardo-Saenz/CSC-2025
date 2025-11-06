@@ -13,55 +13,19 @@ struct HomeTabView: View {
 
     var body: some View {
         TabView {
-            // Pestaña Home (original)
-            NavigationStack {
-                HomeView()
-                    .environmentObject(vm)
-            }
-            .tabItem {
-                Label("Home", systemImage: "house.fill")
-            }
+            NavigationStack { HomeView().environmentObject(vm) }
+                .tabItem { Label("Home", systemImage: "house.fill") }
+            
+            NavigationStack { WorldCupView() }
+                .tabItem { Label("Mundial", systemImage: "sportscourt.fill") }
+            
+            NavigationStack { CameraView() }
+                .tabItem { Label("Camera", systemImage: "camera") }
+            
+            NavigationStack{ ConversationView() }
+                .tabItem{ Label("Interprete", systemImage: "mic.fill")}
 
-            // Nueva pestaña Mundial 2026
-            NavigationStack {
-                WorldCupView()
-            }
-            .tabItem {
-                Label("Mundial", systemImage: "sportscourt.fill")
-            }
-
-            // Traductor
-            //NavigationStack {
-            // TranslatorView()
-            // }
-            //.tabItem {
-            //    Label("Traductor", systemImage: "mic.fill")
-            //}
-
-            // Movilidad (opcional; también aparece en Mundial, pero aquí individual)
-            NavigationStack {
-                MobilityView()
-            }
-            .tabItem {
-                Label("Movilidad", systemImage: "map.fill")
-            }
-
-            // Ajustes
-            NavigationStack {
-                SettingsView()
-                    .environmentObject(settings)
-            }
-            .tabItem {
-                Label("Ajustes", systemImage: "gear")
-            }
-
-            // Cámara (conservada del proyecto original)
-            NavigationStack {
-                CameraView()
-            }
-            .tabItem {
-                Label("Camera", systemImage: "camera")
-            }
+            
         }
     }
 }

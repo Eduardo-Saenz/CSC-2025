@@ -8,85 +8,229 @@
 import SwiftUI
 
 /// Permite seleccionar país e idioma antes de entrar a la app.
+// MARK: - LoginView
 struct LoginView: View {
     @EnvironmentObject var settings: AppSettings
+    @Environment(\.colorScheme) private var scheme
     @State private var selectedCountry: String = ""
     @State private var selectedLanguage: String = ""
+    @State private var didAppear = false
 
     private let countries = [
         "México 🇲🇽", "Estados Unidos 🇺🇸", "Canadá 🇨🇦",
         "Argentina 🇦🇷", "Brasil 🇧🇷", "Alemania 🇩🇪",
         "Francia 🇫🇷", "Japón 🇯🇵"
     ]
+
     private let languages = [
         "Español", "English", "Français", "Deutsch", "Português"
     ]
 
     var body: some View {
-        ZStack {
-            Image("hero")
-                .resizable()
-                .scaledToFill()
-                .edgesIgnoringSafeArea(.all)
-                .blur(radius: 2)
+        GeometryReader { geo in
+            ZStack {
+                // FONDO SÓLIDO ADAPTABLE
+                Color(.systemBackground)
+                    .ignoresSafeArea()
 
-            Color.black.opacity(0.45).edgesIgnoringSafeArea(.all)
+                // Contenido scrollable para alturas pequeñas
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        // Tarjeta centrada y de ancho contenido
+                        VStack(spacing: 22) {
+                            header
 
-            VStack(spacing: 25) {
-                Text("🌍 Bienvenido al Mundial 2026")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                            PickerField(
+                                title: "Selecciona tu país",
+                                systemImage: "globe.americas.fill",
+                                placeholder: "Selecciona",
+                                selection: $selectedCountry,
+                                options: countries
+                            )
 
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Selecciona tu país:")
-                        .foregroundColor(.white)
-                        .fontWeight(.semibold)
+                            PickerField(
+                                title: "Selecciona tu idioma",
+                                systemImage: "character.bubble.fill",
+                                placeholder: "Selecciona",
+                                selection: $selectedLanguage,
+                                options: languages
+                            )
 
-                    Picker("País", selection: $selectedCountry) {
-                        Text("Selecciona").tag("")
-                        ForEach(countries, id: \.self) { Text($0).tag($0) }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding()
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(10)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Selecciona tu idioma:")
-                        .foregroundColor(.white)
-                        .fontWeight(.semibold)
-
-                    Picker("Idioma", selection: $selectedLanguage) {
-                        Text("Selecciona").tag("")
-                        ForEach(languages, id: \.self) { Text($0).tag($0) }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                    .padding()
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(10)
-                }
-
-                Button(action: saveSettings) {
-                    Text("Continuar ⚽️")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                            continueButton
+                            footer
+                        }
+                        .padding(22)
+                        .frame(maxWidth: 520)
+                        .background(
+                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                .fill(Color(.secondarySystemBackground)) // <-- fondo de card adaptable
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                        .stroke(Color(.separator), lineWidth: 1) // <-- borde adaptable
+                                )
+                                .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 6)
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 24)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(selectedCountry.isEmpty || selectedLanguage.isEmpty ? Color.gray.opacity(0.4) : Color.green)
-                        .cornerRadius(12)
+                        // Aparición suave
+                        .opacity(didAppear ? 1 : 0)
+                        .offset(y: didAppear ? 0 : 20)
+                        .blur(radius: didAppear ? 0 : 6)
+                        .animation(.easeOut(duration: 0.5), value: didAppear)
+                    }
+                    .frame(minHeight: geo.size.height, alignment: .center)
                 }
-                .disabled(selectedCountry.isEmpty || selectedLanguage.isEmpty)
-                .padding(.top, 10)
             }
-            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onAppear { didAppear = true }
         }
+        // IMPORTANTE: no forzar dark aquí; el modo lo controla la app/usuario
+        // .preferredColorScheme(.dark)  <-- eliminado
+
+        .onChange(of: selectedCountry) { _ in UISelectionFeedbackGenerator().selectionChanged() }
+        .onChange(of: selectedLanguage) { _ in UISelectionFeedbackGenerator().selectionChanged() }
+    }
+
+    // MARK: - Subviews
+
+    private var header: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: "soccerball.inverse")
+                    .font(.system(size: 30, weight: .bold))
+                Text("Mundial 2026")
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+            }
+            .foregroundStyle(.primary) // <-- en vez de .white
+
+            Text("Bienvenido ✨\nConfigura tu país e idioma para personalizar tu experiencia.")
+                .font(.callout)
+                .foregroundStyle(.secondary) // <-- en vez de .white.opacity
+                .multilineTextAlignment(.center)
+        }
+        .padding(.bottom, 4)
+    }
+
+    private var continueButton: some View {
+        Button(action: saveSettings) {
+            HStack {
+                Text("Continuar")
+                    .font(.headline.weight(.semibold))
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.title3.weight(.semibold))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+        }
+        .buttonStyle(PrimaryButtonStyle(enabled: isFormValid))
+        .disabled(!isFormValid)
+        .padding(.top, 6)
+        .accessibilityLabel("Continuar")
+        .accessibilityHint("Guarda país e idioma seleccionados")
+    }
+
+    private var footer: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.footnote)
+                Text("Tus preferencias solo se usan para personalizar el contenido.")
+            }
+            .foregroundStyle(.secondary) // <-- adaptable
+            .font(.footnote)
+
+            // Indicador de validación (visual)
+            if !isFormValid {
+                Text("Selecciona un país y un idioma para continuar.")
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary) // <-- adaptable
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                    .animation(.easeInOut(duration: 0.2), value: isFormValid)
+            }
+        }
+        .padding(.top, 4)
+    }
+
+    // MARK: - Helpers
+
+    private var isFormValid: Bool {
+        !selectedCountry.isEmpty && !selectedLanguage.isEmpty
     }
 
     private func saveSettings() {
         settings.selectedCountry = selectedCountry
         settings.selectedLanguage = selectedLanguage
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+}
+
+// MARK: - PickerField (reutilizable)
+private struct PickerField: View {
+    let title: String
+    let systemImage: String
+    let placeholder: String
+    @Binding var selection: String
+    let options: [String]
+
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: systemImage)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary) // <-- adaptable
+
+            Menu {
+                Picker(selection: $selection, label: EmptyView()) {
+                    Text(placeholder).tag("")
+                    ForEach(options, id: \.self) { Text($0).tag($0) }
+                }
+            } label: {
+                HStack {
+                    Text(selection.isEmpty ? placeholder : selection)
+                        .foregroundStyle(selection.isEmpty ? .tertiary : .primary) // <-- adaptable
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "chevron.down.circle.fill")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.secondary) // <-- adaptable
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color(.tertiarySystemFill)) // <-- adaptable
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color(.separator), lineWidth: 1) // <-- adaptable
+                        )
+                )
+            }
+            .accessibilityLabel(title)
+        }
+    }
+}
+
+// MARK: - PrimaryButtonStyle
+private struct PrimaryButtonStyle: ButtonStyle {
+    let enabled: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(enabled ? .white : .primary) // texto visible en ambos estados
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(enabled ? Color.accentColor : Color(.tertiarySystemFill)) // <-- adaptable
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color(.separator).opacity(enabled ? 0.25 : 0.12), lineWidth: 1)
+                    )
+            )
+            .shadow(color: .black.opacity(enabled ? 0.22 : 0.08), radius: enabled ? 10 : 4, x: 0, y: enabled ? 8 : 2)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: configuration.isPressed)
     }
 }

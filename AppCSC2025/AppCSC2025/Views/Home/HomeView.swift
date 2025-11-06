@@ -39,13 +39,11 @@ struct HomeView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Image(systemName: "soccerball")
-                .font(.system(size: 28, weight: .semibold))
-                .symbolEffect(.bounce, value: vm.matches.count)
-                .padding(10)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            TopBarSettingsButton()
         }
     }
+
+
     
     private var newsCarousel: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -93,3 +91,4 @@ struct HomeView: View {
         }
     }
 }
+

@@ -1,27 +1,58 @@
-
 [
   {
-    "city": "Ciudad de México",
+    "id": "Mexico City|Estadio Azteca",
+    "city": "Mexico City",
     "stadium": "Estadio Azteca",
-    "metro": "Línea 2 (Metro Tasqueña) + Tren Ligero Estadio Azteca",
-    "bus": "Rutas RTP y Trolebús desde Tasqueña",
-    "walk": "La estación del Tren Ligero está a 5 min caminando",
-    "tip": "Llega con tiempo; el Tren Ligero es la forma más directa de llegar:contentReference[oaicite:0]{index=0}"
+    "tz": "America/Mexico_City",
+    "coords": { "lat": 19.3029, "lon": -99.1505 },
+    "crowd_level": 4,
+    "advisories": ["Operativo vial en Tlalpan", "Revisión aleatoria de mochilas"],
+    "last_updated": "2026-06-12T10:30:00Z",
+    "modes": [
+      { "kind": "metro", "lines": ["L2"], "avg_time_min": 6, "fare_min": 5.0, "fare_currency": "MXN", "accessible": true, "notes": "Baja en 'Estadio Azteca', salida norte", "map_url": "https://maps.apple.com/?address=..." },
+      { "kind": "bus", "lines": ["RTP-1"], "avg_time_min": 12, "fare_min": 8.0, "fare_currency": "MXN", "accessible": false, "notes": "Desde Tasqueña, bajada sobre Tlalpan" },
+      { "kind": "walk", "avg_time_min": 7, "accessible": true, "notes": "Banquetas amplias, señalización del evento" },
+      { "kind": "rideshare", "avg_time_min": 15, "fare_min": 80.0, "fare_currency": "MXN", "notes": "Zona de ascenso/descenso señalizada después del partido" },
+      { "kind": "parking", "notes": "Cupos limitados; llega 2h antes", "map_url": "https://maps.google.com/?q=parking+estadio+azteca" }
+    ],
+    "gates": [
+      { "name": "Puerta 3", "near": ["Metro Estadio Azteca"], "note": "Menos fila antes de las 17:00" }
+    ]
   },
   {
+    "id": "Guadalajara|Estadio Akron",
     "city": "Guadalajara",
     "stadium": "Estadio Akron",
-    "metro": "Línea 3 (Periférico Norte)",
-    "bus": "Rutas A12, T02, TALA POR COLÓN, TVT – POR COLÓN, C109:contentReference[oaicite:1]{index=1}",
-    "walk": "15 min caminando desde la estación Periférico Norte",
-    "tip": "Sal temprano y considera taxi; tras el partido las calles se saturan:contentReference[oaicite:2]{index=2}"
+    "tz": "America/Mexico_City",
+    "coords": { "lat": 20.7015, "lon": -103.4620 },
+    "crowd_level": 3,
+    "advisories": ["Ajuste de rutas SITREN"],
+    "last_updated": "2026-06-12T10:30:00Z",
+    "modes": [
+      { "kind": "bus", "lines": ["T18", "R-380"], "avg_time_min": 15, "fare_min": 10.0, "fare_currency": "MXN", "notes": "Baja en Paradero Akron" },
+      { "kind": "rideshare", "avg_time_min": 18, "fare_min": 90.0, "fare_currency": "MXN", "notes": "Punto de encuentro al sur" },
+      { "kind": "walk", "avg_time_min": 10, "notes": "Poca sombra, hidrátate" }
+    ],
+    "gates": [
+      { "name": "Puerta SUR", "near": ["Paradero Akron"], "note": "Cerca de tiendas oficiales" }
+    ]
   },
   {
+    "id": "Monterrey|BBVA Stadium",
     "city": "Monterrey",
-    "stadium": "Estadio BBVA",
-    "metro": "Línea 1 (Estación Exposición)",
-    "bus": "Rutas locales con paradas en Las Torres y Pablo Livas:contentReference[oaicite:3]{index=3}",
-    "walk": "10 min caminando desde la estación Exposición",
-    "tip": "El metro es la forma más sencilla y rápida para llegar:contentReference[oaicite:4]{index=4}"
+    "stadium": "BBVA Stadium",
+    "tz": "America/Monterrey",
+    "coords": { "lat": 25.6733, "lon": -100.2444 },
+    "crowd_level": 4,
+    "advisories": ["Cierre parcial en Av. Pablo Livas"],
+    "last_updated": "2026-06-12T10:30:00Z",
+    "modes": [
+      { "kind": "metro", "lines": ["L1"], "avg_time_min": 9, "fare_min": 6.0, "fare_currency": "MXN", "notes": "Hasta Exposición y transbordo a bus local" },
+      { "kind": "bus", "lines": ["223", "130"], "avg_time_min": 14, "fare_min": 12.0, "fare_currency": "MXN", "notes": "Baja en Av. Pablo Livas" },
+      { "kind": "parking", "notes": "Estacionamientos perimetrales; prepaga si es posible" }
+    ],
+    "gates": [
+      { "name": "Acceso Oriente", "near": ["Av. P. Livas"], "note": "Más rápido para cabeceras bajas" }
+    ]
   }
 ]
