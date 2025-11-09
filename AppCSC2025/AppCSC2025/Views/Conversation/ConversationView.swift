@@ -1,3 +1,10 @@
+//
+//  ConversationView.swift
+//  AppCSC2025
+//
+//  Created by Samuel Martinez on 10/31/25.
+//
+
 import SwiftUI
 import AVFoundation
 
@@ -5,8 +12,8 @@ struct ConversationView: View {
     @State private var messages: [ChatMessage] = []
     @State private var isRecording = false
     @State private var currentTranscription = ""
-    @State private var sourceLanguage: RecognizedLanguage = .es
-    @State private var targetLanguage: RecognizedLanguage = .en
+    @State private var sourceLanguage: RecognizedLanguage = .es // 👈 Usuario habla en español
+    @State private var targetLanguage: RecognizedLanguage = .en // 👈 Traduce al inglés
     @EnvironmentObject var settings: AppSettings
 
     private let recognizer = SpeechRecognizerService()
@@ -16,13 +23,26 @@ struct ConversationView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Header dinámico
+            Text("Traduce de \(sourceLanguage.label) → \(targetLanguage.label)")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .padding(.top, 8)
+                .transition(.opacity)
+
+            Divider()
+
+            // Chat scrollable
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(messages) { message in
                             ChatBubble(message: message, tts: tts)
                                 .id(message.id)
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
+                                .transition(.asymmetric(
+                                    insertion: .move(edge: .bottom).combined(with: .opacity),
+                                    removal: .opacity
+                                ))
                         }
                     }
                     .padding(.horizontal)
@@ -40,6 +60,7 @@ struct ConversationView: View {
             if isRecording {
                 RecordingIndicator(transcription: currentTranscription)
                     .transition(.opacity)
+                    .padding(.vertical, 8)
             }
 
             controlBar
@@ -128,22 +149,13 @@ struct ConversationView: View {
         let translated = await translator.translate(text, from: sourceLanguage, to: targetLanguage)
         guard !translated.isEmpty else { return }
 
-        if let last = messages.last, last.sourceLanguage == sourceLanguage {
-            messages[messages.count - 1] = ChatMessage(
+        withAnimation(.easeInOut) {
+            messages.append(ChatMessage(
                 originalText: text,
                 translatedText: translated,
                 sourceLanguage: sourceLanguage,
                 targetLanguage: targetLanguage
-            )
-        } else {
-            withAnimation(.easeInOut) {
-                messages.append(ChatMessage(
-                    originalText: text,
-                    translatedText: translated,
-                    sourceLanguage: sourceLanguage,
-                    targetLanguage: targetLanguage
-                ))
-            }
+            ))
         }
 
         if translated != lastSpokenText {
@@ -189,10 +201,10 @@ struct ConversationView: View {
     private func addWelcomeMessage() {
         messages.append(
             ChatMessage(
-                originalText: "Welcome to Multivoice AI",
-                translatedText: "Bienvenido a Multivoice AI",
-                sourceLanguage: .en,
-                targetLanguage: .es
+                originalText: "Bienvenido a Multivoice AI",
+                translatedText: "Welcome to Multivoice AI",
+                sourceLanguage: .es,
+                targetLanguage: .en
             )
         )
     }
@@ -221,45 +233,48 @@ struct ChatBubble: View {
     let tts: TTSService
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Original
+        VStack(spacing: 6) {
+            // Original (derecha)
             HStack {
-                Text(message.sourceLanguage.flag)
-                Text(message.sourceLanguage.label)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
                 Spacer()
-            }
-            Text(message.originalText)
-                .font(.body)
-                .padding()
-                .background(Color.blue.opacity(0.08))
-                .cornerRadius(12)
-                .shadow(radius: 1, y: 1)
-
-            // Traducción
-            HStack {
-                Text(message.targetLanguage.flag)
-                Text(message.targetLanguage.label)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Button {
-                    tts.speak(message.translatedText, language: message.targetLanguage)
-                } label: {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .foregroundColor(.blue)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Tú (\(message.sourceLanguage.flag))")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    Text(message.originalText)
+                        .padding(10)
+                        .background(Color.blue.opacity(0.15))
+                        .cornerRadius(12)
+                        .foregroundColor(.primary)
                 }
             }
-            Text(message.translatedText)
-                .font(.body)
-                .padding()
-                .background(Color.green.opacity(0.08))
-                .cornerRadius(12)
-                .shadow(radius: 1, y: 1)
+
+            // Traducción (izquierda)
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text("Traducción (\(message.targetLanguage.flag))")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Button {
+                            tts.speak(message.translatedText, language: message.targetLanguage)
+                        } label: {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .foregroundColor(.blue)
+                                .font(.caption)
+                        }
+                    }
+                    Text(message.translatedText)
+                        .padding(10)
+                        .background(Color.green.opacity(0.15))
+                        .cornerRadius(12)
+                        .foregroundColor(.primary)
+                }
+                Spacer()
+            }
         }
-        .padding(.horizontal, 4)
-        .transition(.opacity.combined(with: .move(edge: .bottom)))
+        .padding(.horizontal)
+        .transition(.opacity)
     }
 }
 
@@ -278,7 +293,6 @@ struct RecordingIndicator: View {
                         animationAmount = 1.5
                     }
                 }
-
             Text(transcription)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
@@ -301,7 +315,6 @@ struct RecordButton: View {
                     .fill(isRecording ? Color.red : Color.blue)
                     .frame(width: 70, height: 70)
                     .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
-
                 Image(systemName: isRecording ? "stop.fill" : "mic.fill")
                     .font(.title)
                     .foregroundColor(.white)

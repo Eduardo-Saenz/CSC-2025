@@ -32,9 +32,7 @@ struct CameraView: View {
                 }
             }
 
-            // Overlay principal
             VStack {
-                // 🔤 Selector de idioma + botón de galería
                 HStack {
                     Picker("Destination", selection: $vm.targetLanguage) {
                         ForEach(RecognizedLanguage.allCases, id: \.self) {
@@ -50,7 +48,6 @@ struct CameraView: View {
 
                     Spacer()
 
-                    // 📷 Botón galería
                     PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
                         Image(systemName: "photo.fill.on.rectangle.fill")
                             .font(.title2)
@@ -65,7 +62,6 @@ struct CameraView: View {
 
                 Spacer()
 
-                // 🔎 Idioma detectado + traducción
                 if !vm.overlayText.isEmpty {
                     VStack(spacing: 10) {
                         if let detectedLang = vm.detectedLanguageLabel {
@@ -96,7 +92,6 @@ struct CameraView: View {
                     .padding(.bottom, 90)
                 }
 
-                // 🔘 Botón principal
                 Button {
                     if selectedImage != nil {
                         selectedImage = nil
@@ -121,7 +116,6 @@ struct CameraView: View {
                 .padding(.bottom, 30)
             }
         }
-        // Cuando se selecciona una imagen
         .onChange(of: selectedPhoto) { newItem in
             Task {
                 guard let item = newItem else { return }
@@ -136,7 +130,6 @@ struct CameraView: View {
     }
 }
 
-// Efecto de blur nativo
 struct VisualEffectBlur: UIViewRepresentable {
     var blurStyle: UIBlurEffect.Style
     func makeUIView(context: Context) -> UIVisualEffectView {

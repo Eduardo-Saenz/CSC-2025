@@ -24,7 +24,6 @@ final class MatchesViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] matches in
                 guard let self else { return }
-                // orden base por kickoff
                 self.all = matches.sorted { ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture) }
                 self.recomputeUpcoming()
             }
@@ -45,7 +44,6 @@ final class MatchesViewModel: ObservableObject {
         }
     }
 
-    /// Opcional: para seccionar por día
     func daySections() -> [(dayKey: String, matches: [Match])] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -60,15 +58,15 @@ final class MatchesViewModel: ObservableObject {
         }
 
         let grouped = Dictionary(grouping: pairs, by: { $0.0 })
-            .mapValues { $0.map(\.1) } // [String: [Match]]
+            .mapValues { $0.map(\.1) }
 
         let sections: [(dayKey: String, matches: [Match])] = grouped
             .map { (dayKey: $0.key,
-                    matches: $0.value.sorted(by: { // 👈 usa 'by:' explícito
+                    matches: $0.value.sorted(by: {
                         ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture)
                     })) }
 
-        return sections.sorted(by: { $0.dayKey < $1.dayKey }) // 👈 referencia el label 'dayKey'
+        return sections.sorted(by: { $0.dayKey < $1.dayKey }) 
 
     }
 }

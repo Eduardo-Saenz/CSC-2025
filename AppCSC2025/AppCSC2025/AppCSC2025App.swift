@@ -19,3 +19,4 @@ struct AppCSC2025App: App {
         }
     }
 }
+

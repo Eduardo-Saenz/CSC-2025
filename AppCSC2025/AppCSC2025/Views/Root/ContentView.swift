@@ -16,7 +16,7 @@ struct ContentView: View {
                 .environmentObject(settings)
                 .environment(\.locale, Locale(identifier: localeCode))
         } else {
-            LoginView()
+            Login2()
                 .environmentObject(settings)
         }
     }
@@ -32,3 +32,5 @@ struct ContentView: View {
         }
     }
 }
+
+

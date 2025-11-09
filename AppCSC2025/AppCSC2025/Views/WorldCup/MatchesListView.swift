@@ -11,13 +11,11 @@ struct MatchesListView: View {
     @StateObject private var matchesVM: MatchesViewModel
     @StateObject private var groupsVM: GroupsViewModel
 
-    // init que recibe el manager y construye los StateObject
     init(manager: WorldCupManager) {
         _matchesVM = StateObject(wrappedValue: MatchesViewModel(manager: manager))
         _groupsVM  = StateObject(wrappedValue: GroupsViewModel(manager: manager))
     }
 
-    // Filtros locales
     @State private var selectedGroup: String? = nil
     @State private var selectedStage: String = "All"
     @State private var selectedStatus: String = "All"

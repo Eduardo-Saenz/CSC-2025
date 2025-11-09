@@ -22,13 +22,12 @@ final class WorldCupManager: ObservableObject {
 
     func loadData() {
         // 1) Grupos
-        // - Nuestros groups vienen enraizados en GroupSet { groups: [Group] }
+  
         if let set: GroupSet? = tryDecode("groups.json") {
             groups = set?.groups ?? []
         }
 
         // 2) Partidos
-        // - Nuestro archivo es una lista directa de Match
         if let ms: [Match]? = tryDecode("matches.json") {
             matches = ms ?? []
         }
@@ -38,11 +37,9 @@ final class WorldCupManager: ObservableObject {
             mobility = mob ?? []
         }
 
-        // Ordenar partidos por fecha (utiliza nuestro helper `kickoffDateUTC`)
         matches.sort { ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture) }
     }
 
-    // MARK: - Generic decode helper (usa JSONLoader internamente si quieres)
     private func tryDecode<T: Decodable>(_ filename: String) -> T? {
         guard let url = Bundle.main.url(forResource: (filename as NSString).deletingPathExtension,
                                         withExtension: (filename as NSString).pathExtension.isEmpty ? "json" : (filename as NSString).pathExtension)
@@ -53,7 +50,6 @@ final class WorldCupManager: ObservableObject {
             let dec = JSONDecoder()
             return try dec.decode(T.self, from: data)
         } catch {
-            // print("Decode error for \(filename): \(error)")
             return nil
         }
     }

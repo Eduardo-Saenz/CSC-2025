@@ -19,7 +19,6 @@ final class GroupsViewModel: ObservableObject {
     init(manager: WorldCupManager) {
         self.manager = manager
 
-        // Suscripción: cuando cambie manager.groups, actualizamos el VM
         manager.$groups
             .receive(on: DispatchQueue.main)
             .sink { [weak self] groups in
