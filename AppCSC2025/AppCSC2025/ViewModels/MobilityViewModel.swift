@@ -13,9 +13,9 @@ final class MobilityViewModel: ObservableObject {
     @Published private(set) var all: [Mobility] = []
     @Published private(set) var filtered: [Mobility] = []
 
-    // Filtros típicos
+    
     @Published var selectedCity: String = "All"
-    @Published var selectedKind: String = "All"   // "metro", "bus", "walk", "rideshare", "parking", etc.
+    @Published var selectedKind: String = "All"
     @Published var onlyAccessible: Bool = false
     @Published var searchText: String = ""
 
@@ -25,7 +25,6 @@ final class MobilityViewModel: ObservableObject {
     init(manager: WorldCupManager) {
         self.manager = manager
 
-        // Trae la lista base del manager
         manager.$mobility
             .receive(on: DispatchQueue.main)
             .sink { [weak self] list in
@@ -34,7 +33,7 @@ final class MobilityViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        // Reaplica filtros cuando cambie algún filtro
+        
         Publishers.CombineLatest4($selectedCity, $selectedKind, $onlyAccessible, $searchText)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _, _, _, _ in
@@ -50,7 +49,7 @@ final class MobilityViewModel: ObservableObject {
     }
 
     var kindOptions: [String] {
-        // Si tu Mobility tiene `modes` con `kind`
+        
         let kinds = Set(all.flatMap { $0.modes.compactMap { $0.kind } })
             .map { $0.rawValue }
             .sorted()

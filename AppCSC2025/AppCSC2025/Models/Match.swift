@@ -18,7 +18,7 @@ struct Match: Decodable, Identifiable, Hashable {
     }
 
     struct Ticketing: Decodable, Hashable {
-        let status: String      // "high" | "medium" | "low" | "very-low"
+        let status: String      
         let min_price: Int
     }
 
@@ -29,15 +29,15 @@ struct Match: Decodable, Identifiable, Hashable {
     }
 
     let id: String
-    let stage: String          // "Group", "R16", "QF", etc.
-    let group: String?         // nil en fases KO
+    let stage: String
+    let group: String?
     let matchday: Int
     let kickoff_utc: String
-    let kickoff_local: String  // redundante, útil para previews offline
+    let kickoff_local: String
     let venue: Venue
-    let home: String           // Team.code
-    let away: String           // Team.code
-    let status: String         // "scheduled" | "live" | "finished"
+    let home: String
+    let away: String
+    let status: String
     let tags: [String]
     let importance: String
     let ticketing: Ticketing
@@ -47,15 +47,13 @@ struct Match: Decodable, Identifiable, Hashable {
 
 // MARK: - Computed helpers
 extension Match {
-    /// Convierte kickoff_utc (ISO-8601) a `Date`. Devuelve nil si el string está mal.
     var kickoffDateUTC: Date? {
         ISO8601DateFormatter.cached.date(from: kickoff_utc)
     }
 
-    /// Fecha local formateada a partir de `kickoffDateUTC` usando la zona horaria del venue.tz si existe, si no, la del sistema.
     func formattedLocal(dateStyle: DateFormatter.Style = .medium,
                         timeStyle: DateFormatter.Style = .short) -> String {
-        guard let date = kickoffDateUTC else { return kickoff_local } // fallback al string del JSON
+        guard let date = kickoffDateUTC else { return kickoff_local }
         let df = DateFormatter()
         df.locale = Locale.autoupdatingCurrent
         df.timeZone = TimeZone(identifier: venue.tz) ?? .autoupdatingCurrent
@@ -69,7 +67,6 @@ extension Match {
 private extension ISO8601DateFormatter {
     static let cached: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
-        // Acepta "YYYY-MM-DDTHH:mm:ssZ"
         f.formatOptions = [.withInternetDateTime]
         return f
     }()

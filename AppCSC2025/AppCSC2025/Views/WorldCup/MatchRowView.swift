@@ -14,7 +14,6 @@ struct MatchRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Etiquetas arriba: grupo/etapa + matchday + status
             HStack(spacing: 6) {
                 if let g = match.group {
                     pill("Group \(g)")
@@ -26,7 +25,6 @@ struct MatchRowView: View {
                 Spacer()
             }
 
-            // Marcador de equipos con bandera + code
             HStack(spacing: 10) {
                 teamLabel(team: home, fallbackCode: match.home, alignRight: false)
                 Text("vs").font(.footnote).foregroundStyle(.secondary)
@@ -35,7 +33,6 @@ struct MatchRowView: View {
             }
             .font(.headline)
 
-            // Fecha local + venue
             VStack(alignment: .leading, spacing: 2) {
                 Text(match.formattedLocal())
                     .font(.subheadline)
@@ -44,7 +41,6 @@ struct MatchRowView: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Extras: tags / ticketing / broadcast
             HStack(spacing: 8) {
                 if !match.tags.isEmpty {
                     ForEach(match.tags.prefix(2), id: \.self) { tag in

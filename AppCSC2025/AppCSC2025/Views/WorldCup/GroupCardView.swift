@@ -9,11 +9,10 @@ import SwiftUI
 
 struct GroupCardView: View {
     let group: Group
-    let teams: [Team]   // ya filtrados/ordenados desde fuera
+    let teams: [Team]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Header de grupo
             Text("Grupo \(group.group)")
                 .font(.headline)
                 .foregroundColor(.white)
@@ -21,7 +20,6 @@ struct GroupCardView: View {
                 .background(Color.green)
                 .cornerRadius(8)
 
-            // Encabezados tipo tabla
             HStack {
                 Text("Equipo").fontWeight(.semibold).frame(maxWidth: .infinity, alignment: .leading)
                 Text("Code").frame(width: 44, alignment: .trailing)
@@ -31,7 +29,6 @@ struct GroupCardView: View {
             .font(.caption)
             .padding(.horizontal, 4)
 
-            // Filas
             ForEach(teams, id: \.code) { team in
                 HStack {
                     Text("\(team.flag) \(team.name)")
@@ -52,8 +49,7 @@ struct GroupCardView: View {
     }
 
     private func shortConf(_ conf: String) -> String {
-        // por si llegan "UEFA", "AFC", etc., lo dejamos igual;
-        // si viniera "South America" podrías mapearlo aquí.
+        
         conf
     }
 }

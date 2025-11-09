@@ -16,7 +16,6 @@ final class OCRProcessor {
     var minimumTextHeight: Float = 0.02
     var confidenceThreshold: Float = 0.50
 
-    // Función unificada: puede recibir pixelBuffer o imagen estática
     func scanAndTranslateText(
         pixelBuffer: CVPixelBuffer?,
         target: RecognizedLanguage,
@@ -31,7 +30,6 @@ final class OCRProcessor {
         return (t, avg)
     }
 
-    // OCR dinámico o desde imagen
     func recognize(pixelBuffer: CVPixelBuffer?, fromStaticImage cgImage: CGImage?) async -> (text: String, avgConfidence: Float) {
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = recognitionLevel
@@ -61,11 +59,9 @@ final class OCRProcessor {
                 }
             }
 
-            // Une el texto detectado
             let full = texts.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
             let avg = confidences.isEmpty ? 0 : (confidences.reduce(0, +) / Float(confidences.count))
 
-            // Limpieza básica de texto (quita ruido como 'nginx', 'chatgpt', etc.)
             let blocked = ["nginx", "thing", "chatgpt", "mistakes", "check", "ir"]
             let filtered = full
                 .split(separator: " ")

@@ -25,7 +25,7 @@ struct MobilityListView: View {
                             Text(m.city).foregroundStyle(.secondary)
                         }
 
-                        // Avisos (si tu modelo los dejó opcionales)
+                        
                         if let advisories = m.advisories, !advisories.isEmpty {
                             Text(advisories.joined(separator: " · "))
                                 .font(.caption)
@@ -33,7 +33,6 @@ struct MobilityListView: View {
                                 .lineLimit(2)
                         }
 
-                        // ✅ m.modes NO opcional
                         if !m.modes.isEmpty {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 6) {
@@ -57,7 +56,6 @@ struct MobilityListView: View {
             .navigationTitle("Movilidad")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    // Filtro ciudad
                     Menu {
                         Picker("Ciudad", selection: $vm.selectedCity) {
                             ForEach(vm.cityOptions, id: \.self) { Text($0).tag($0) }
@@ -67,7 +65,6 @@ struct MobilityListView: View {
                               systemImage: "mappin.and.ellipse")
                     }
 
-                    // Filtro modo (si hay más de uno)
                     if vm.kindOptions.count > 1 {
                         Menu {
                             Picker("Modo", selection: $vm.selectedKind) {
@@ -79,7 +76,6 @@ struct MobilityListView: View {
                         }
                     }
 
-                    // Accesibilidad
                     Toggle(isOn: $vm.onlyAccessible) {
                         Image(systemName: "figure.roll.runningpace")
                     }
