@@ -11,45 +11,101 @@ struct GroupCardView: View {
     let group: Group
     let teams: [Team]
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Grupo \(group.group)")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(8)
-                .background(Color.green)
-                .cornerRadius(8)
+    // 🎨 Colores FIFA 2026
+    private let fifaGreen = Color(hex: "006847") // 🇲🇽 México
+    private let fifaRed   = Color(hex: "CE1125") // 🇨🇦 Canadá
+    private let fifaBlue  = Color(red: 0.08, green: 0.47, blue: 0.94) // 🇺🇸 USA
 
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // Encabezado del grupo
+            HStack {
+                Text("Grupo \(group.group)")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [fifaGreen, fifaBlue]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(Capsule())
+                Spacer()
+            }
+
+            // Encabezado de columnas
             HStack {
                 Text("Equipo").fontWeight(.semibold).frame(maxWidth: .infinity, alignment: .leading)
-                Text("Code").frame(width: 44, alignment: .trailing)
-                Text("Conf").frame(width: 68, alignment: .trailing)
-                Text("Rank").frame(width: 40, alignment: .trailing)
+                Text("Código").frame(width: 44, alignment: .trailing)
+                Text("Conf.").frame(width: 68, alignment: .trailing)
+                Text("Ranking").frame(width: 52, alignment: .trailing)
             }
             .font(.caption)
+            .foregroundStyle(.secondary)
             .padding(.horizontal, 4)
 
+            Divider()
+                .overlay(fifaGreen.opacity(0.3))
+
+            // Equipos
             ForEach(teams, id: \.code) { team in
                 HStack {
                     Text("\(team.flag) \(team.name)")
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .lineLimit(1)
-                    Text(team.code).frame(width: 44, alignment: .trailing)
-                    Text(shortConf(team.confederation)).frame(width: 68, alignment: .trailing)
-                    Text("\(team.fifa_rank)").frame(width: 40, alignment: .trailing)
+
+                    Text(team.code)
+                        .frame(width: 44, alignment: .trailing)
+                        .foregroundColor(.primary)
+
+                    Text(shortConf(team.confederation))
+                        .frame(width: 68, alignment: .trailing)
+                        .foregroundColor(.secondary)
+
+                    Text("\(team.fifa_rank)")
+                        .frame(width: 52, alignment: .trailing)
+                        .fontWeight(.medium)
+                        .foregroundColor(fifaBlue)
                 }
                 .font(.caption2)
                 .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color(.systemGray6))
+                        .opacity(0.4)
+                )
             }
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.white,
+                    Color(.systemGray6).opacity(0.8)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .cornerRadius(16)
+        .shadow(color: fifaGreen.opacity(0.15), radius: 5, x: 0, y: 3)
     }
 
     private func shortConf(_ conf: String) -> String {
-        
-        conf
+        switch conf.lowercased() {
+        case "uefa": return "Europa"
+        case "conmebol": return "Sudamérica"
+        case "concacaf": return "Norteamérica"
+        case "caf": return "África"
+        case "afc": return "Asia"
+        case "ofc": return "Oceanía"
+        default: return conf
+        }
     }
 }
+

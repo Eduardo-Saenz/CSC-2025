@@ -43,14 +43,22 @@ final class WorldCupManager: ObservableObject {
     private func tryDecode<T: Decodable>(_ filename: String) -> T? {
         guard let url = Bundle.main.url(forResource: (filename as NSString).deletingPathExtension,
                                         withExtension: (filename as NSString).pathExtension.isEmpty ? "json" : (filename as NSString).pathExtension)
-        else { return nil }
+        else {
+            print("⚠️ File not found in bundle:", filename)
+            return nil
+        }
 
         do {
             let data = try Data(contentsOf: url)
             let dec = JSONDecoder()
-            return try dec.decode(T.self, from: data)
+            dec.dateDecodingStrategy = .iso8601 // 👈 importante para las fechas tipo "2026-06-12T19:00:00Z"
+            let decoded = try dec.decode(T.self, from: data)
+            print("✅ Successfully decoded \(filename)")
+            return decoded
         } catch {
+            print("❌ Error decoding \(filename):", error)
             return nil
         }
     }
+
 }

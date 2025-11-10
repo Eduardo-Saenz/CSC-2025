@@ -14,6 +14,9 @@ struct TopTabs: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
+                
+                Spacer()
+                
                 ForEach(WorldCupPage.allCases) { page in
                     Button {
                         selection = page
@@ -26,7 +29,6 @@ struct TopTabs: View {
                                     .fontWeight(selection == page ? .semibold : .regular)
                             }
                             .font(.subheadline)
-                            .foregroundStyle(selection == page ? .primary : .secondary)
 
                             ZStack {
                                 Rectangle()
@@ -51,6 +53,8 @@ struct TopTabs: View {
                 }
             }
             .padding(.horizontal, 16)
+            .frame(maxWidth: .infinity)
+            .multilineTextAlignment(.center)
         }
         .background(.ultraThinMaterial)
     }

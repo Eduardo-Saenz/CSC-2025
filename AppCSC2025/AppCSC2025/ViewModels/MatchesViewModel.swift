@@ -12,6 +12,7 @@ import Combine
 final class MatchesViewModel: ObservableObject {
     @Published private(set) var all: [Match] = []
     @Published private(set) var upcoming: [Match] = []
+    @Published private(set) var userMatches: [Match] = []   // 👈 Agregado
     @Published var selectedGroup: String? = nil
 
     private let manager: WorldCupManager
@@ -24,8 +25,11 @@ final class MatchesViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] matches in
                 guard let self else { return }
-                self.all = matches.sorted { ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture) }
+                self.all = matches.sorted {
+                    ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture)
+                }
                 self.recomputeUpcoming()
+                self.computeUserMatches() // 👈 Se actualizan también los del usuario
             }
             .store(in: &bag)
     }
@@ -37,11 +41,21 @@ final class MatchesViewModel: ObservableObject {
 
     private func recomputeUpcoming() {
         let now = Date()
-        let base = (selectedGroup == nil) ? all : all.filter { $0.group == selectedGroup }
+        let base = (selectedGroup == nil)
+            ? all
+            : all.filter { $0.group == selectedGroup }
+
         upcoming = base.filter { m in
             guard let d = m.kickoffDateUTC else { return true }
             return d >= now || m.status == "scheduled"
         }
+    }
+
+    /// 👇 Nuevo método: define los partidos del usuario (simulados)
+    private func computeUserMatches() {
+        // Por ahora usamos IDs fijos de ejemplo (ajústalo luego según lógica real)
+        let attendedIDs: Set<String> = ["A-01", "A-03", "F-01", "C-01"]
+        userMatches = all.filter { attendedIDs.contains($0.id) }
     }
 
     func daySections() -> [(dayKey: String, matches: [Match])] {
@@ -66,7 +80,6 @@ final class MatchesViewModel: ObservableObject {
                         ($0.kickoffDateUTC ?? .distantFuture) < ($1.kickoffDateUTC ?? .distantFuture)
                     })) }
 
-        return sections.sorted(by: { $0.dayKey < $1.dayKey }) 
-
+        return sections.sorted(by: { $0.dayKey < $1.dayKey })
     }
 }

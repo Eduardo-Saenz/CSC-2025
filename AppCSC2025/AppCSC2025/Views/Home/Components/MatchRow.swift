@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct MatchRow: View {
-    let match: MatchEvent
+    let match: Match
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             VStack(spacing: 6) {
-                Text(match.date.monthAbbrev.uppercased())
+                Text(match.kickoffDateUTC!.monthAbbrev.uppercased())
                     .font(.caption2).bold()
                     .foregroundStyle(.secondary)
-                Text(match.date.dayNumber)
+                Text(match.kickoffDateUTC!.dayNumber)
                     .font(.title2).bold()
             }
             .frame(width: 48)
@@ -25,14 +25,14 @@ struct MatchRow: View {
             
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text("\(match.homeTeam) vs \(match.awayTeam)")
+                    Text("\(match.home) vs \(match.away)")
                         .font(.headline)
                     Spacer()
                 }
                 HStack(spacing: 10) {
-                    Label(match.date.timeShort, systemImage: "clock")
-                    Label("\(match.stadium)", systemImage: "building.2")
-                    Label("\(match.city)", systemImage: "mappin.and.ellipse")
+                    Label(match.kickoffDateUTC!.timeShort, systemImage: "clock")
+                    Label("\(match.venue.stadium)", systemImage: "building.2")
+                    Label("\(match.venue.city)", systemImage: "mappin.and.ellipse")
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)

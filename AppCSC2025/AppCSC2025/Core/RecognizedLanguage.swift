@@ -21,8 +21,8 @@ enum RecognizedLanguage: String, CaseIterable, Codable {
     var label: String {
         switch self {
         case .es: return "Español"
-        case .en: return "Inglés"
-        case .fr: return "Francés"
+        case .en: return "English"
+        case .fr: return "Francais"
         }
     }
 

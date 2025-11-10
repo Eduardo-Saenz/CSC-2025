@@ -3,7 +3,7 @@
 //  AppCSC2025
 //
 //  Created by Samuel Martinez on 10/31/25.
-//  Versión Deluxe: UI tipo Apple Translate con blur, idioma detectado y transiciones suaves.
+//  Versión Mundial 2026: UI oscura tipo Apple Translate con efecto tricolor.
 //
 
 import SwiftUI
@@ -15,12 +15,33 @@ struct CameraView: View {
     @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var selectedImage: UIImage? = nil
 
+    // Colores oficiales
+    private let fifaGreen = Color(hexString: "006847") // 🇲🇽
+    private let fifaRed   = Color(hexString: "CE1125") // 🇨🇦
+
     var body: some View {
         ZStack {
-            // Fondo: cámara o imagen cargada
-            SwiftUI.Group {
+            // Fondo negro + halo tricolor
+            Color.black.ignoresSafeArea()
+                .overlay(
+                    ZStack {
+                        Circle().fill(fifaRed.opacity(0.08))
+                            .frame(width: 400, height: 400)
+                            .blur(radius: 120)
+                            .offset(x: 140, y: 260)
+
+
+                        Circle().fill(fifaGreen.opacity(0.1))
+                            .frame(width: 450, height: 450)
+                            .blur(radius: 140)
+                            .offset(x: 80, y: -100)
+                    }
+                )
+
+            // Contenido principal: cámara o imagen cargada
+            ZStack {
                 if let image = selectedImage {
-                    SwiftUI.Image(uiImage: image)
+                    Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -33,8 +54,9 @@ struct CameraView: View {
             }
 
             VStack {
+                // MARK: Barra superior — selección de idioma + galería
                 HStack {
-                    Picker("Destination", selection: $vm.targetLanguage) {
+                    Picker("Destino", selection: $vm.targetLanguage) {
                         ForEach(RecognizedLanguage.allCases, id: \.self) {
                             Text($0.flaggedLabel).tag($0)
                         }
@@ -43,8 +65,9 @@ struct CameraView: View {
                     .tint(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .shadow(radius: 3)
+                    .background(Color.black.opacity(0.4), in: Capsule())
+                    .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                    .shadow(color: .black.opacity(0.5), radius: 3, y: 2)
 
                     Spacer()
 
@@ -53,8 +76,9 @@ struct CameraView: View {
                             .font(.title2)
                             .foregroundColor(.white)
                             .padding(10)
-                            .background(.ultraThinMaterial, in: Circle())
-                            .shadow(radius: 3)
+                            .background(Color.black.opacity(0.4), in: Circle())
+                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                            .shadow(color: .black.opacity(0.6), radius: 3, y: 2)
                     }
                 }
                 .padding(.top, 40)
@@ -62,14 +86,17 @@ struct CameraView: View {
 
                 Spacer()
 
+                // MARK: Texto detectado + overlay traducido
                 if !vm.overlayText.isEmpty {
                     VStack(spacing: 10) {
                         if let detectedLang = vm.detectedLanguageLabel {
-                            Text("Detected: \(detectedLang.flaggedLabel)")
+                            Text("Detectado: \(detectedLang.flaggedLabel)")
                                 .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
-                                .padding(6)
-                                .background(.ultraThinMaterial, in: Capsule())
+                                .foregroundColor(.white.opacity(0.85))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.black.opacity(0.5), in: Capsule())
+                                .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 0.8))
                                 .shadow(radius: 2)
                         }
 
@@ -81,17 +108,27 @@ struct CameraView: View {
                             .padding(.horizontal, 18)
                             .padding(.vertical, 12)
                             .background(
-                                VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
-                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.black.opacity(0.55))
+                                    .overlay(
+                                        LinearGradient(
+                                            colors: [fifaGreen.opacity(0.15), .clear],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    )
+                                    .shadow(color: .white.opacity(0.05), radius: 8, y: 2)
                             )
-                            .shadow(radius: 10)
+                            .shadow(color: .black.opacity(0.8), radius: 10, y: 5)
                             .padding(.horizontal, 28)
                             .transition(.opacity.combined(with: .scale))
                             .animation(.easeInOut(duration: 0.3), value: vm.overlayText)
                     }
-                    .padding(.bottom, 90)
+                    .padding(.bottom, 100)
                 }
 
+                // MARK: Botón inferior (Traducir / Cerrar / Detener)
                 Button {
                     if selectedImage != nil {
                         selectedImage = nil
@@ -101,21 +138,28 @@ struct CameraView: View {
                     }
                 } label: {
                     Label(
-                        selectedImage != nil ? "Close Image" :
-                        (vm.isRunning ? "Stop" : "Live Translate"),
+                        selectedImage != nil ? "Cerrar Imagen" :
+                        (vm.isRunning ? "Detener" : "Traducir en Vivo"),
                         systemImage: selectedImage != nil ? "xmark.circle.fill" :
                             (vm.isRunning ? "stop.circle.fill" : "text.viewfinder")
                     )
                     .font(.headline)
-                    .padding(.horizontal, 28)
+                    .padding(.horizontal, 30)
                     .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(colors: [fifaGreen, fifaRed],
+                                               startPoint: .leading, endPoint: .trailing)
+                            )
+                    )
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.5), radius: 6, y: 4)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(selectedImage != nil ? .orange : (vm.isRunning ? .red : .blue))
-                .shadow(radius: 6)
-                .padding(.bottom, 30)
+                .padding(.bottom, 36)
             }
         }
+        // MARK: Cargar imagen desde galería
         .onChange(of: selectedPhoto) { newItem in
             Task {
                 guard let item = newItem else { return }
@@ -128,14 +172,6 @@ struct CameraView: View {
         }
         .task { await vm.prepare() }
     }
-}
-
-struct VisualEffectBlur: UIViewRepresentable {
-    var blurStyle: UIBlurEffect.Style
-    func makeUIView(context: Context) -> UIVisualEffectView {
-        UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-    }
-    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 }
 
 #if os(iOS)

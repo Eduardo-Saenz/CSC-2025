@@ -395,6 +395,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AppCSC2025/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "WorldPass 26";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to the camera to translate text in real time.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone for voice input and recognition.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to your photos to select images and translate text from them.";
@@ -431,6 +432,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = AppCSC2025/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "WorldPass 26";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to the camera to translate text in real time.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone for voice input and recognition.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs access to your photos to select images and translate text from them.";

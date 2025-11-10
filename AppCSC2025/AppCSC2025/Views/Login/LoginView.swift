@@ -1,20 +1,13 @@
-//
-//  LoginView.swift
-//  AppCSC2025
-//
-//  Created by Samuel Martinez on 11/3/25.
-//
-
 import SwiftUI
 
-/// Permite seleccionar país e idioma antes de entrar a la app.
-// MARK: - LoginView
 struct LoginView: View {
     @EnvironmentObject var settings: AppSettings
-    @Environment(\.colorScheme) private var scheme
     @State private var selectedCountry: String = ""
     @State private var selectedLanguage: String = ""
     @State private var didAppear = false
+    @State private var bounce = false
+    @State private var titleScale: CGFloat = 0.8
+    @State private var titleOpacity = 0.0
 
     private let countries = [
         "México 🇲🇽", "Estados Unidos 🇺🇸", "Canadá 🇨🇦",
@@ -27,19 +20,59 @@ struct LoginView: View {
     ]
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack {
-                // FONDO SÓLIDO ADAPTABLE
-                Color(.systemBackground)
-                    .ignoresSafeArea()
+        ZStack {
+            // 🌅 Fondo dorado cálido
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.98, green: 0.91, blue: 0.78),
+                    Color(red: 0.90, green: 0.77, blue: 0.55),
+                    Color(red: 0.74, green: 0.58, blue: 0.40)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
-                // Contenido scrollable para alturas pequeñas
-                ScrollView(showsIndicators: false) {
-                    VStack {
-                        // Tarjeta centrada y de ancho contenido
-                        VStack(spacing: 22) {
-                            header
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 22) {
+                    // 🏆 Imagen principal con rebote
+                    Image("mascotas2026")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 250)
+                        .shadow(radius: 10)
+                        .padding(.top, 30) // 🔽 antes estaba en 60
+                        .offset(y: bounce ? -8 : 0)
+                        .animation(
+                            .interpolatingSpring(stiffness: 90, damping: 7)
+                                .delay(0.4)
+                                .repeatForever(autoreverses: true),
+                            value: bounce
+                        )
+                        .opacity(didAppear ? 1 : 0)
+                        .offset(y: didAppear ? 0 : 40)
+                        .animation(.easeOut(duration: 0.6), value: didAppear)
 
+                    // 🖋️ Título Mundial 2026
+                    Text("MUNDIAL 2026")
+                        .font(.custom("Orbitron-Bold", size: 32))
+                        .tracking(5)
+                        .foregroundStyle(.black)
+                        .shadow(color: .yellow.opacity(0.3), radius: 4, x: 0, y: 0)
+                        .scaleEffect(titleScale)
+                        .opacity(titleOpacity)
+                        .animation(.spring(response: 0.7, dampingFraction: 0.8).delay(0.4), value: titleScale)
+                        .animation(.easeInOut(duration: 0.8).delay(0.4), value: titleOpacity)
+
+                    // 🧾 Tarjeta con formulario
+                    VStack(spacing: 20) {
+                        Text("Configura tu país e idioma para personalizar tu experiencia:")
+                            .font(.system(size: 17))
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 4)
+
+                        VStack(spacing: 16) {
                             PickerField(
                                 title: "Selecciona tu país",
                                 systemImage: "globe.americas.fill",
@@ -55,105 +88,66 @@ struct LoginView: View {
                                 selection: $selectedLanguage,
                                 options: languages
                             )
-
-                            continueButton
-                            footer
                         }
-                        .padding(22)
-                        .frame(maxWidth: 520)
-                        .background(
-                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                .fill(Color(.secondarySystemBackground)) // <-- fondo de card adaptable
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                        .stroke(Color(.separator), lineWidth: 1) // <-- borde adaptable
+
+                        // 🎯 Botón
+                        Button(action: saveSettings) {
+                            Text("Continuar")
+                                .font(.headline.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 13)
+                                .background(
+                                    LinearGradient(
+                                        colors: isFormValid
+                                            ? [Color.black, Color(red: 0.82, green: 0.67, blue: 0.3)]
+                                            : [Color.gray.opacity(0.5), Color.gray.opacity(0.3)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
                                 )
-                                .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 6)
-                        )
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 24)
-                        .frame(maxWidth: .infinity)
-                        // Aparición suave
-                        .opacity(didAppear ? 1 : 0)
-                        .offset(y: didAppear ? 0 : 20)
-                        .blur(radius: didAppear ? 0 : 6)
-                        .animation(.easeOut(duration: 0.5), value: didAppear)
+                                .foregroundColor(.white)
+                                .cornerRadius(14)
+                                .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 5)
+                                .scaleEffect(isFormValid ? 1 : 0.96)
+                                .opacity(isFormValid ? 1 : 0.7)
+                        }
+                        .disabled(!isFormValid)
+                        .animation(.spring(), value: isFormValid)
+
+                        Text("Tus preferencias solo se usan para personalizar el contenido.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                     }
-                    .frame(minHeight: geo.size.height, alignment: .center)
+                    .padding(26)
+                    .background(
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(.ultraThinMaterial)
+                            .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+                    )
+                    .padding(.horizontal, 28)
+                    .padding(.bottom, 100) // ⬆️ aumentado (antes 60)
+                    .opacity(didAppear ? 1 : 0)
+                    .offset(y: didAppear ? 0 : 50)
+                    .animation(.easeOut(duration: 0.8).delay(0.3), value: didAppear)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear { didAppear = true }
         }
-        // IMPORTANTE: no forzar dark aquí; el modo lo controla la app/usuario
-        // .preferredColorScheme(.dark)  <-- eliminado
-
-        .onChange(of: selectedCountry) { _ in UISelectionFeedbackGenerator().selectionChanged() }
-        .onChange(of: selectedLanguage) { _ in UISelectionFeedbackGenerator().selectionChanged() }
-    }
-
-    // MARK: - Subviews
-
-    private var header: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 10) {
-                Image(systemName: "soccerball.inverse")
-                    .font(.system(size: 30, weight: .bold))
-                Text("Mundial 2026")
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+        .onAppear {
+            withAnimation {
+                didAppear = true
             }
-            .foregroundStyle(.primary) // <-- en vez de .white
-
-            Text("Bienvenido ✨\nConfigura tu país e idioma para personalizar tu experiencia.")
-                .font(.callout)
-                .foregroundStyle(.secondary) // <-- en vez de .white.opacity
-                .multilineTextAlignment(.center)
-        }
-        .padding(.bottom, 4)
-    }
-
-    private var continueButton: some View {
-        Button(action: saveSettings) {
-            HStack {
-                Text("Continuar")
-                    .font(.headline.weight(.semibold))
-                Image(systemName: "arrow.right.circle.fill")
-                    .font(.title3.weight(.semibold))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                bounce = true
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-        }
-        .buttonStyle(PrimaryButtonStyle(enabled: isFormValid))
-        .disabled(!isFormValid)
-        .padding(.top, 6)
-        .accessibilityLabel("Continuar")
-        .accessibilityHint("Guarda país e idioma seleccionados")
-    }
-
-    private var footer: some View {
-        VStack(spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: "lock.shield.fill")
-                    .font(.footnote)
-                Text("Tus preferencias solo se usan para personalizar el contenido.")
-            }
-            .foregroundStyle(.secondary) // <-- adaptable
-            .font(.footnote)
-
-            // Indicador de validación (visual)
-            if !isFormValid {
-                Text("Selecciona un país y un idioma para continuar.")
-                    .font(.footnote)
-                    .foregroundStyle(.tertiary) // <-- adaptable
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                    .animation(.easeInOut(duration: 0.2), value: isFormValid)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                titleOpacity = 1
+                titleScale = 1
             }
         }
-        .padding(.top, 4)
     }
 
     // MARK: - Helpers
-
     private var isFormValid: Bool {
         !selectedCountry.isEmpty && !selectedLanguage.isEmpty
     }
@@ -161,12 +155,11 @@ struct LoginView: View {
     private func saveSettings() {
         settings.selectedCountry = selectedCountry
         settings.selectedLanguage = selectedLanguage
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
 
-// MARK: - PickerField (reutilizable)
+// MARK: - PickerField (azul subrayado)
 private struct PickerField: View {
     let title: String
     let systemImage: String
@@ -174,63 +167,47 @@ private struct PickerField: View {
     @Binding var selection: String
     let options: [String]
 
-    @State private var isExpanded = false
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label(title, systemImage: systemImage)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary) // <-- adaptable
+                .foregroundStyle(.secondary)
 
             Menu {
                 Picker(selection: $selection, label: EmptyView()) {
                     Text(placeholder).tag("")
-                    ForEach(options, id: \.self) { Text($0).tag($0) }
+                    ForEach(options, id: \.self) {
+                        Text($0)
+                            .foregroundStyle(.blue)
+                            .tag($0)
+                    }
                 }
             } label: {
                 HStack {
-                    Text(selection.isEmpty ? placeholder : selection)
-                        .foregroundStyle(selection.isEmpty ? .tertiary : .primary) // <-- adaptable
-                        .lineLimit(1)
+                    if selection.isEmpty {
+                        Text(placeholder)
+                            .foregroundColor(.blue)
+                    } else {
+                        Text(selection)
+                            .foregroundStyle(.primary)
+                    }
+
                     Spacer()
                     Image(systemName: "chevron.down.circle.fill")
                         .font(.title3.weight(.semibold))
-                        .foregroundStyle(.secondary) // <-- adaptable
+                        .foregroundStyle(.blue)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(.tertiarySystemFill)) // <-- adaptable
+                        .fill(Color(.systemGray6))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .stroke(Color(.separator), lineWidth: 1) // <-- adaptable
+                                .stroke(Color(.separator), lineWidth: 1)
                         )
                 )
             }
-            .accessibilityLabel(title)
         }
-    }
-}
-
-// MARK: - PrimaryButtonStyle
-private struct PrimaryButtonStyle: ButtonStyle {
-    let enabled: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundStyle(enabled ? .white : .primary) // texto visible en ambos estados
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(enabled ? Color.accentColor : Color(.tertiarySystemFill)) // <-- adaptable
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color(.separator).opacity(enabled ? 0.25 : 0.12), lineWidth: 1)
-                    )
-            )
-            .shadow(color: .black.opacity(enabled ? 0.22 : 0.08), radius: enabled ? 10 : 4, x: 0, y: enabled ? 8 : 2)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.spring(response: 0.28, dampingFraction: 0.9), value: configuration.isPressed)
     }
 }

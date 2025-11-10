@@ -25,28 +25,4 @@ enum SampleData {
                  date: .now.addingTimeInterval(5_400),
                  icon: "map")
     ]
-
-    static let matches: [MatchEvent] = [
-        MatchEvent(
-            homeTeam: "Mexico",
-            awayTeam: "Italy",
-            stadium: "Estadio Azteca",
-            city: "CDMX",
-            date: DateComponents(calendar: .current, year: 2026, month: 6, day: 12, hour: 19, minute: 0).date ?? .now
-        ),
-        MatchEvent(
-            homeTeam: "USA",
-            awayTeam: "Japan",
-            stadium: "MetLife Stadium",
-            city: "NY/NJ",
-            date: DateComponents(calendar: .current, year: 2026, month: 6, day: 13, hour: 16, minute: 30).date ?? .now
-        ),
-        MatchEvent(
-            homeTeam: "Canada",
-            awayTeam: "Spain",
-            stadium: "BC Place",
-            city: "Vancouver",
-            date: DateComponents(calendar: .current, year: 2026, month: 6, day: 14, hour: 14, minute: 0).date ?? .now
-        )
-    ]
 }

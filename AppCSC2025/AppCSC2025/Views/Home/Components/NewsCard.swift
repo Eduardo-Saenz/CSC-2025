@@ -37,11 +37,11 @@ struct NewsCard: View {
                     .lineLimit(2)
                 Text(item.subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.gray)
                     .lineLimit(2)
                 Text(item.date, format: .dateTime.hour().minute())
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.gray)
             }
             .padding(16)
         }
